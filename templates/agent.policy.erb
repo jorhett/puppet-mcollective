@@ -1,0 +1,8 @@
+# /etc/mcollective/policies/<%= @agent -%>.policy
+<% if( @default ) then -%>
+policy default <%= @default %>
+<% end -%>
+<% @rules.each do |comment, rule| -%>
+# <%= comment %>
+<%= rule['policy'] %>	<%= rule['caller'] %>	<%= rule['actions'] %>	<%= rule['facts'] %>	<%= rule['classes'] %>
+<% end -%>

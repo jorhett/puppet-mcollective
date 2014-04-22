@@ -1,0 +1,8 @@
+# /etc/mcollective/policies/service.policy
+# Admins can do anything
+# acme-devs can do anything to acme devservers
+# acme-devs can do status and restart on any acme box
+policy default deny
+allow	cert=admin	*		*		*
+allow	cert=acme-devs	*		customer=acme	acme::devserver
+allow	cert=acme-devs	restart status	customer=acme	*

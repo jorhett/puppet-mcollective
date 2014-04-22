@@ -1,0 +1,106 @@
+# /etc/mcollective/server.cfg
+libdir = <%= scope.lookupvar('mcollective::libdir') %>
+daemonize = 1
+direct_addressing = 1
+<% if( @collectives ) then -%>
+main_collective = <%= @collectives[0] %>
+collectives = <%- @collectives.each do |collective| -%><%= collective -%>,<% end -%>                                                                                                                               
+<% end -%>
+
+# ActiveMQ connector settings:
+connector = <%= scope.lookupvar('mcollective::connector') %>
+<% if( scope.lookupvar('mcollective::connector') == 'rabbitmq' ) then -%>
+plugin.rabbitmq.vhost = /mcollective
+<% elsif( scope.lookupvar('mcollective::connector') == 'activemq' ) then -%>
+plugin.activemq.heartbeat_interval = 30
+<% end -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.size = <%= @hosts.length %>
+<% @hosts.each_with_index do |mqhost, index| -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.host = <%= mqhost %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.port = <%= scope.lookupvar('mcollective::_port') %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.user = <%= scope.lookupvar('mcollective::server_user') %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.password = <%= scope.lookupvar('mcollective::server_password') %>
+<% if( scope.lookupvar('mcollective::connector') == 'activemq' ) then -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl = <%= scope.lookupvar('mcollective::connector_ssl')  %>
+<% if( scope.lookupvar('mcollective::connector_ssl_type') == 'trusted' ) then -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.key = <%= scope.lookupvar('::ssldir') -%>/private_keys/<%= scope.lookupvar('clientcert') -%>.pem
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.cert = <%= scope.lookupvar('::ssldir') -%>/certs/<%= scope.lookupvar('clientcert') -%>.pem
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.ca = <%= scope.lookupvar('::ssldir') -%>/certs/ca.pem
+<% else -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.fallback = true
+<% end -%>
+<% end -%>
+<% end -%>
+
+# Send these messages to keep the Stomp connection alive.
+# This solves NAT and firewall timeout problems.
+registerinterval = <%= scope.lookupvar('mcollective::registerinterval') %>
+
+# Security provider
+<% if( scope.lookupvar('mcollective::security_provider') == 'psk' ) then -%>
+securityprovider = psk
+plugin.psk = <%= scope.lookupvar('mcollective::psk_key') %>
+<% elsif( scope.lookupvar('mcollective::security_provider') == 'sshkey' ) then -%>                                                                                                                                           
+securityprovider = sshkey
+<% if( @sshkey_authorized_keys ) then -%>
+plugin.sshkey.server.known_hosts = <%= @sshkey_authorized_keys %>
+<% end -%> 
+<% elsif( scope.lookupvar('mcollective::security_provider') == 'ssl' ) then -%>
+securityprovider = ssl
+plugin.ssl_server_private = <%= scope.lookupvar('mcollective::etcdir') -%>/ssl/server/private.pem
+plugin.ssl_server_public = <%= scope.lookupvar('mcollective::etcdir') -%>/ssl/server/public.pem
+plugin.ssl_client_cert_dir = <%= scope.lookupvar('mcollective::etcdir') -%>/ssl/clients
+<% elsif( scope.lookupvar('mcollective::security_provider') == 'aes_security' ) then -%>
+securityprovider = aes_security
+plugin.aes.server_public = <%= scope.lookupvar('::ssldir') -%>/public_keys/<%= scope.lookupvar('clientcert') -%>.pem
+plugin.aes.server_private = <%= scope.lookupvar('::ssldir') -%>/private_keys/<%= scope.lookupvar('clientcert') -%>.pem
+plugin.aes.client_cert_dir = <%= scope.lookupvar('mcollective::etcdir') -%>/ssl/clients
+plugin.aes.enforce_ttl = true
+<% end -%>
+
+# Facts
+factsource = yaml
+plugin.yaml = <%= scope.lookupvar('mcollective::etcdir') %>/facts.yaml
+
+# Puppet resource control
+plugin.puppet.resource_allow_managed_resources = <%= @allow_managed_resources %>
+<% if( @resource_type_whitelist ) then -%>
+plugin.puppet.resource_type_whitelist = <%= @resource_type_whitelist %>
+<% else -%>
+plugin.puppet.resource_type_blacklist = <%= @resource_type_blacklist %>
+<% end -%>
+
+<% if( @audit_logfile ) then -%>
+# Auditing
+rpcaudit = 1
+rpcauditprovider = Logfile
+plugin.rpcaudit.logfile = <%= @audit_logfile %>
+<% end -%>
+
+<% if( @authorization_enable ) then -%>
+# Authorization policy
+rpcauthorization = 1
+rpcauthprovider = action_policy
+<% if( @authorization_default_policy ) then -%>
+plugin.actionpolicy.enable_default = 1
+plugin.actionpolicy.default_name - <%= @authorization_default_policy -%>
+<% else -%>
+plugin.actionpolicy.allow_unconfigured = 1
+<% end -%>
+<% end -%>
+
+# Logging
+logger_type = <%= @logger_type %>
+loglevel = <%= @log_level %>
+<% if( @logger_type == 'syslog' ) then -%>
+logfacility = <%= @logfacility %>
+<% end -%>
+<% if( @logger_type == 'file' ) then -%>
+logfile = <%= @logfile %>
+<% if( @keeplogs ) then -%>
+keeplogs = <%= @keeplogs %>
+<% end -%>
+<% if( @max_log_size ) then -%>
+max_log_size = <%= @max_log_size %>
+<% end -%>
+<% end -%> 

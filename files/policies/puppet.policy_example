@@ -1,0 +1,16 @@
+# /etc/mcollective/policies/puppet.policy
+policy default deny
+
+# Get out of jail free if you push out a policy that breaks authorization
+allow	*		runonce runall		*		*
+
+# Admins can do anything
+#allow	cert=admin	*			*		*
+
+# if Wile E Coyote had a dev team...
+
+# acme-devs can run puppet once or get puppet summary on any server
+#allow	cert=acme-devs	runonce summary		customer=acme	*
+
+# acme-devs can enable/disable puppet or run puppet on all devservers
+#allow	cert=acme-devs	enable disable runall	customer=acme	acme::devserver

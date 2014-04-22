@@ -1,0 +1,31 @@
+All of this content is derrived from the plug's github page at
+  https://github.com/puppetlabs/mcollective-actionpolicy-auth
+
+Policies are defined in files like <configdir>/policies/<agent>.policy
+
+Any lines starting with # are comments.
+
+A single policy default deny or policy default allow line is permitted;
+it can go anywhere in the file. This default policy will apply to any 
+commands that don't match a specific rule. If you don't specify a 
+default policy, the value of the plugin.actionpolicy.allow_unconfigured 
+setting will be used as the default.
+
+Any number of policy lines are permitted. These must be tab delimited 
+lines with either four or five fields (the final field is optional) 
+in the following order:
+
+allow or deny
+
+Caller ID --- must be either * (always matches) or one caller ID string
+
+Actions --- must be either * (always matches) or a space-separated list
+
+Facts --- may be either * (always matches),
+  a space-separated list of fact=value pairs (matches if every fact matches),
+  or any valid compound filter string
+
+Classes --- may be completely absent (always matches),
+  * (always matches),
+  a space-separated list of class names (matches if every class is present),
+  or any valid compound filter string

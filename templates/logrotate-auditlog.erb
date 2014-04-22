@@ -1,0 +1,7 @@
+# This doesn't specify a time interval or a size, so as to inherit any site-specific policy
+<%= @audit_logfile -%> {
+  missingok
+  notifempty
+  delaycompress
+  create 0600 root
+}

@@ -1,0 +1,5 @@
+# /etc/mcollective/policies/allow_psk_root.policy
+# This is insecure unless we can trust root on every client machine
+policy default deny
+allow	uid=0	    *           *       *
+allow	gid=0	    *           *       *

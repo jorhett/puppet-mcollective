@@ -1,0 +1,281 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+<% if( @confversion == '5.9' ) then -%>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://activemq.apache.org/schema/core
+  http://activemq.apache.org/schema/core/activemq-core.xsd"
+<% else -%>
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://activemq.apache.org/schema/core
+    http://activemq.apache.org/schema/core/activemq-core.xsd
+    http://activemq.apache.org/camel/schema/spring
+    http://activemq.apache.org/camel/schema/spring/camel-spring.xsd"
+<% end -%>
+>
+
+    <broker xmlns="http://activemq.apache.org/schema/core"
+        brokerName="<%= scope.lookupvar('::clientcert') -%>"
+        useJmx="true"
+        schedulePeriodForDestinationPurge="60000"
+        networkConnectorStartAsync="true"
+<% if( @confversion == '5.9' ) then -%>
+        dataDirectory="${activemq.data}"
+<% else -%>
+        dataDirectory="${activemq.base}/data"
+<% end -%>
+    >
+
+        <destinationPolicy>
+          <policyMap>
+            <policyEntries>
+              <!--
+                For better performances use VM cursor and small memory limit.
+                  http://activemq.apache.org/message-cursors.html
+             
+                MCollective works best with producer flow control disabled.
+                  http://activemq.apache.org/producer-flow-control.html
+              -->
+              <policyEntry
+                  topic=">"
+                  producerFlowControl="false"
+                  memoryLimit="1mb"
+              >
+                <pendingSubscriberPolicy>
+                  <vmCursor />
+                </pendingSubscriberPolicy>
+                <!-- The constantPendingMessageLimitStrategy is used to prevent
+                       slow topic consumers to block producers and affect other consumers
+                       by limiting the number of messages that are retained
+                         http://activemq.apache.org/slow-consumer-handling.html
+                     -->
+                <pendingMessageLimitStrategy>
+                  <constantPendingMessageLimitStrategy limit="1000"/>
+                </pendingMessageLimitStrategy>
+              </policyEntry>
+              <!-- MCollective generates a reply queue for most commands.
+                Garbage-collect these after five minutes to conserve memory. -->
+              <policyEntry
+                queue=">"
+                producerFlowControl="false"
+                memoryLimit="1mb"
+              >
+                <pendingQueuePolicy>
+                  <vmQueueCursor/>
+                </pendingQueuePolicy>
+              </policyEntry>
+              <policyEntry
+                queue="*.reply.>"
+                gcInactiveDestinations="true"
+                inactiveTimoutBeforeGC="300000"
+              />
+            </policyEntries>
+          </policyMap>
+        </destinationPolicy>
+
+        <!-- 
+          The managementContext is used to configure how ActiveMQ is exposed in 
+          JMX. By default, ActiveMQ uses the MBean server that is started by 
+          the JVM.  http://activemq.apache.org/jmx.html 
+        -->
+        <managementContext>
+            <managementContext createConnector="false"/>
+        </managementContext>
+
+        <plugins>
+          <statisticsBrokerPlugin/>
+          <simpleAuthenticationPlugin>
+            <users>
+<% if( @brokernetwork == true ) then -%>
+                <authenticationUser username="<%= scope.lookupvar('mcollective::broker_user') -%>" password="<%= scope.lookupvar('mcollective::broker_password') -%>" groups="admins,everyone"/>
+<% end -%>
+                <authenticationUser username="<%= scope.lookupvar('mcollective::client_user') -%>" password="<%= scope.lookupvar('mcollective::client_password') -%>" groups="servers,clients,everyone"/>
+                <authenticationUser username="<%= scope.lookupvar('mcollective::server_user') -%>" password="<%= scope.lookupvar('mcollective::server_password') -%>" groups="servers,everyone"/>
+            </users>
+          </simpleAuthenticationPlugin>
+
+          <authorizationPlugin>
+            <map>
+              <authorizationMap>
+                <authorizationEntries>
+<% if( @brokernetwork == true ) then -%>
+                  <authorizationEntry queue=">" write="admins" read="admins" admin="admins" />
+                  <authorizationEntry topic=">" write="admins" read="admins" admin="admins" />
+<% end -%>
+<%- @collectives.each do |collective| -%>
+                  <authorizationEntry queue="<%= collective %>.>" write="clients,<%= collective %>-clients" read="clients,<%= collective %>-clients" admin="clients,<%= collective %>-clients" />
+                  <authorizationEntry topic="<%= collective %>.>" write="clients,<%= collective %>-clients" read="clients,<%= collective %>-clients" admin="clients,<%= collective %>-clients" />
+                  <authorizationEntry queue="<%= collective %>.nodes" read="servers,<%= collective %>-servers" admin="servers,<%= collective %>-servers" />
+                  <authorizationEntry queue="<%= collective %>.reply.>" write="servers,<%= collective %>-servers" admin="servers,<%= collective %>-servers" />
+                  <authorizationEntry topic="<%= collective %>.*.agent" read="servers,<%= collective %>-servers" admin="servers,<%= collective %>-servers" />
+                  <authorizationEntry topic="<%= collective %>.registration.agent" write="servers,<%= collective %>-servers" read="servers,<%= collective %>-servers" admin="servers,<%= collective %>-servers" />
+<%- end -%>
+
+                  <!--
+                    The advisory topics are part of ActiveMQ, and all users need access to them.
+                    The "everyone" group is not special; you need to ensure every user is a member.
+                  -->
+                  <authorizationEntry topic="ActiveMQ.Advisory.>" read="everyone" write="everyone" admin="everyone"/>
+                </authorizationEntries>
+              </authorizationMap>
+            </map>
+          </authorizationPlugin>
+        </plugins>
+
+        <!--
+          The systemUsage controls the maximum amount of space the broker will 
+          use before disabling caching and/or slowing down producers.
+            http://activemq.apache.org/producer-flow-control.html
+            http://docs.puppetlabs.com/mcollective/deploy/middleware/activemq.html#memory-and-temp-usage-for-messages-systemusage
+        -->
+        <systemUsage>
+            <systemUsage>
+                <memoryUsage>
+<% if( @confversion == '5.9' ) then -%>
+                    <memoryUsage percentOfJvmHeap="70"/>
+<%- else -%>
+                    <memoryUsage limit="20 mb"/>
+<%- end -%>
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="1 gb"/>
+                </storeUsage>
+                <tempUsage>
+                    <tempUsage limit="100 mb"/>
+                </tempUsage>
+            </systemUsage>
+        </systemUsage>
+
+<%- 
+    # DoS protection, limit concurrent connections (default 1000) and frame size to 100MB
+    dos_params = 'maximumConnections=' + @max_connections
+    dos_params += '&amp;wireFormat.maxFrameSize=104857600'
+    ssl_connector_params = dos_params
+    if( scope.lookupvar('mcollective::connector_ssl_type') == 'trusted' ) then 
+        ssl_connector_params = 'needClientAuth=true&amp;' + dos_params
+    end
+
+    ssl_connector = 'stomp+ssl'
+    if( @confversion == '5.9' ) then
+        ssl_connector = 'stomp+nio+ssl'
+    end
+-%>
+<% if( scope.lookupvar('mcollective::connector_ssl') ) then -%>
+        <transportConnectors>
+          <transportConnector
+            name="stomp+ssl"    
+            uri="stomp+ssl://0.0.0.0:<%= scope.lookupvar('mcollective::_port') -%>?<%= connector_params -%>"
+          />
+      https://activemq.apache.org/configuring-transports.html
+      
+<% if( @brokernetwork == true ) then -%>
+          <transportConnector
+            name="openwire+ssl"
+            uri="ssl://0.0.0.0:61617?needClientAuth=true"
+          />
+<% end -%>
+        </transportConnectors>
+
+        <sslContext>
+          <sslContext
+            keyStore="ssl/keystore.jks" keyStorePassword="<%= @keystore_password -%>"
+<% if( (@brokernetwork == true) || (scope.lookupvar('mcollective::connector_ssl_type') == 'trusted') ) then -%>
+            trustStore="ssl/truststore.jks" trustStorePassword="<%= @truststore_password -%>"
+<% end -%>
+          />
+        </sslContext>
+<% else -%>
+
+        <transportConnectors>
+          <transportConnector
+            name="stomp+nio" 
+            uri="stomp+nio://0.0.0.0:<%= scope.lookupvar('mcollective::_port') -%>?<%= dos_params -%>"
+          />
+<% if( @brokernetwork == true ) then -%>
+          <transportConnector
+            name="openwire"
+            uri="tcp://0.0.0.0:61616"
+          />
+<% end -%>
+        </transportConnectors>
+<% end # brokernetwork -%>
+
+        <networkConnectors>
+<%- @remotehosts.each do |remotehost| -%>
+          <networkConnector
+              name="<%= remotehost -%>_topics"
+<% if( scope.lookupvar('mcollective::connector_ssl') ) then -%>
+              uri="static:(ssl://<%= remotehost -%>:61617?wireFormat.tightEncodingEnabled=false&amp;wireFormat.maxInactivityDuration=0)"
+<% else -%>
+              uri="static:(tcp://<%= remotehost -%>:61616?wireFormat.tightEncodingEnabled=false&amp;wireFormat.maxInactivityDuration=0)"
+<% end -%>
+              userName="<%= scope.lookupvar('mcollective::broker_user') -%>"
+              password="<%= scope.lookupvar('mcollective::broker_password') -%>"
+              duplex="false"
+              decreaseNetworkConsumerPriority="true"
+              suppressDuplicateTopicSubscriptions="true"
+              networkTTL="2"
+              dynamicOnly="true"
+              conduitSubscriptions="true"
+            >
+            <excludedDestinations>
+              <queue physicalName=">" />
+            </excludedDestinations>
+          </networkConnector>
+          <networkConnector
+              name="<%= remotehost -%>_queues"
+<% if( scope.lookupvar('mcollective::connector_ssl') ) then -%>
+              uri="static:(ssl://<%= remotehost -%>:61617)"
+<% else -%>
+              uri="static:(tcp://<%= remotehost -%>:61616)"
+<% end -%>
+              userName="<%= scope.lookupvar('mcollective::broker_user') -%>"
+              password="<%= scope.lookupvar('mcollective::broker_password') -%>"
+              duplex="false"
+              decreaseNetworkConsumerPriority="true"
+              suppressDuplicateTopicSubscriptions="true"
+              networkTTL="2"
+              dynamicOnly="true"
+              conduitSubscriptions="false"
+            >
+            <excludedDestinations>
+              <topic physicalName=">" />
+            </excludedDestinations>
+          </networkConnector>
+<% end -%>
+        </networkConnectors>
+<% if( @confversion == '5.9' ) then -%>
+         <!-- destroy the spring context on shutdown to stop jetty -->
+         <shutdownHooks>
+             <bean xmlns="http://www.springframework.org/schema/beans" class="org.apache.activemq.hooks.SpringContextHook" />
+         </shutdownHooks>
+<% end -%>
+    </broker>
+
+    <!-- Allows us to use system properties as variables in this configuration file -->
+    <!-- disabled to avoid well-known passwords, may need to enable when using Jetty or other tools below
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <value>file:${activemq.base}/conf/credentials.properties</value>
+        </property>      
+    </bean>
+    -->
+
+    <!--
+      Enable web consoles, REST and Ajax APIs and demos.
+<% if( @confversion == '5.9' ) then -%>
+      It also includes Camel (with its web console); see ${ACTIVEMQ_HOME}/conf/camel.xml for more info.
+<% else -%>
+        The web consoles requires by default login, you can disable this in the jetty.xml file
+<% end -%>
+
+      See ${ACTIVEMQ_HOME}/conf/jetty.xml for more details.
+    -->
+    <!-- disabled for security, don't enable without reading the ActiveMQ documentation
+    <import resource="jetty.xml"/>
+    -->
+</beans>

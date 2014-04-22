@@ -1,0 +1,20 @@
+[
+  {rabbit, [  
+<% if( scope.lookupvar('mcollective::connector_ssl') ) then -%>
+    {ssl_options, [
+               {cacertfile,"<%= ${::ssldir} -%>/ca/ca.pem"},
+               {certfile,"<%= ${::ssldir} -%>/certs/<%= ${clientcert} -%>pem"},
+               {keyfile,"<%= ${::ssldir} -%>/private_keys/<%= ${clientcert} -%>pem"},
+               {verify,verify_peer},
+               {fail_if_no_peer_cert,false}
+    ]}
+<% end -%>
+  ]},
+  {rabbitmq_stomp, [
+<% if( scope.lookupvar('mcollective::connector_ssl') ) then -%>
+    {ssl_listeners, [<%= scope.lookupvar('mcollective::_port') -%>]}
+<% else -%>
+    {tcp_listeners, [<%= scope.lookupvar('mcollective::_port') -%>]}
+<% end -%>
+  ]}
+],
