@@ -44,13 +44,13 @@ Hiera:
 ```
 
 ```puppet
-node default.example.net {
+node 'default.example.net' {
     include mcollective::server
 }
-node activemq.example.net {
+node 'activemq.example.net' {
     include mcollective::middleware
 }
-node bastion.example.net {
+node 'desktop.example.net' {
     include mcollective::client
 }
 ```
