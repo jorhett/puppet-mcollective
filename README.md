@@ -1,13 +1,15 @@
 # mcollective
 
+[LMCOcover] http://akamaicovers.oreilly.com/images/0636920032472/rc_cat.gif
+
 ## Overview 
 
 This is an mcollective module for Puppet.
 
 This module was used in the development of the book
-  Learning MCollective
-  O'Reilly Media, Inc
-  ISBN: 1234000001913
+![Learning MCollective cover][LMCOcover](http://shop.oreilly.com/product/0636920032472.do) 
+>  O'Reilly Media, Inc  
+>  ISBN: [978-1-4919-4567-4](http://shop.oreilly.com/product/0636920032472.do) 
 
 ## Description
 
@@ -36,12 +38,13 @@ Updates for Solaris, MacOS, and Windows coming soon.
 The easiest setup is to put the passwords in Hiera and then simply
 include the modules in site or nodes manifest.
 
-```hiera
-mcollective::hosts:
-    - 'activemq.example.net'
-mcollective::client_password: 'Client Password'
-mcollective::server_password: 'Server Password'
-mcollective::psk_key        : 'Salt Value'
+```YAML
+Hiera:
+    mcollective::hosts:
+        - 'activemq.example.net'
+    mcollective::client_password: 'Client Password'
+    mcollective::server_password: 'Server Password'
+    mcollective::psk_key        : 'Salt Value'
 ```
 
 ```puppet
