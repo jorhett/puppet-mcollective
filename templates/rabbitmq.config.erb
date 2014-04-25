@@ -1,20 +1,20 @@
 [
   {rabbit, [  
-<% if( scope.lookupvar('mcollective::connector_ssl') ) then -%>
+<% if( scope.lookupvar('mcollective::connector_ssl') == 'true' ) then -%>
     {ssl_options, [
-               {cacertfile,"<%= ${::ssldir} -%>/ca/ca.pem"},
-               {certfile,"<%= ${::ssldir} -%>/certs/<%= ${clientcert} -%>pem"},
-               {keyfile,"<%= ${::ssldir} -%>/private_keys/<%= ${clientcert} -%>pem"},
+               {cacertfile,"<%= scope.lookupvar('::ssldir') -%>/ca/ca.pem"},
+               {certfile,"<%= scope.lookupvar('::ssldir') -%>/certs/<%= scope.lookupvar('::clientcert') -%>.pem"},
+               {keyfile,"<%= scope.lookupvar('::ssldir') -%>/private_keys/<%= scope.lookupvar('::clientcert') -%>.pem"},
                {verify,verify_peer},
                {fail_if_no_peer_cert,false}
     ]}
 <% end -%>
   ]},
   {rabbitmq_stomp, [
-<% if( scope.lookupvar('mcollective::connector_ssl') ) then -%>
-    {ssl_listeners, [<%= scope.lookupvar('mcollective::_port') -%>]}
+<% if( @connector_ssl ) then -%>
+    {ssl_listeners, [<%= @_port -%>]}
 <% else -%>
-    {tcp_listeners, [<%= scope.lookupvar('mcollective::_port') -%>]}
+    {tcp_listeners, [<%= @_port -%>]}
 <% end -%>
   ]}
-],
+].

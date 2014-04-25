@@ -1,5 +1,5 @@
 name    'jorhett-mcollective'
-version '0.1.0'
+version '0.1.1'
 source 'jorhett'
 author 'Jo Rhett'
 license 'Apache 2.0'

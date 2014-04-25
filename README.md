@@ -55,7 +55,9 @@ node 'desktop.example.net' {
 }
 ```
 
-This doc needs some love, I hope to get back to it soon.
+This module is a companion intended for use with the Learning MCollective book,
+and makes a number of changes compared to the PuppetLabs module which are
+explained in the book itself.
 
 ## Bugs
 
