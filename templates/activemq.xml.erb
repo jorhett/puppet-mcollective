@@ -168,7 +168,7 @@
         <transportConnectors>
           <transportConnector
             name="stomp+ssl"    
-            uri="stomp+ssl://0.0.0.0:<%= scope.lookupvar('mcollective::_port') -%>?<%= connector_params -%>"
+            uri="stomp+ssl://0.0.0.0:<%= scope.lookupvar('mcollective::_port') -%>?<%= ssl_connector_params -%>"
           />
       https://activemq.apache.org/configuring-transports.html
       
