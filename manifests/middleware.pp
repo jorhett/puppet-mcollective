@@ -141,7 +141,7 @@ class mcollective::middleware(
       validate_string( $mcollective::broker_user )
       validate_string( $mcollective::broker_password )
       if( $mcollective::broker_password == undef ) {
-        validate_re( $mcollective::broker_password, '^\w+', 'Broker password must be supplied when multiple brokers are listed.' )
+        validate_re( $mcollective::broker_password, '^\S{6,}+', 'Broker password must be at least 6 characters when multiple brokers are listed.' )
       }
     }
   }
@@ -177,7 +177,7 @@ class mcollective::middleware(
 
   # Set up keystore and truststore if necessary
   if( $mcollective::connector_ssl == true ) {
-    validate_re( $keystore_password, '^\w{6,}$', 'Keystore password must be at least 6 alphanumeric characters' )
+    validate_re( $keystore_password, '^\S{6,}$', 'Keystore password must be at least 6 characters' )
     file { "${directory}/ssl":
         ensure  => directory,
         owner   => $user,
@@ -240,7 +240,7 @@ class mcollective::middleware(
 
     # Truststore
     if( $brokernetwork or ( "${mcollective::connector_ssl_type}" == 'trusted' ) ) {
-      validate_re( $truststore_password, '^\w{6,}$', 'Truststore password must be at least 6 alphanumeric characters' )
+      validate_re( $truststore_password, '^\S{6,}$', 'Truststore password must be at least 6 characters' )
       exec { "mcollective-create-truststore":
         cwd      => "${directory}/ssl",
         command  => "keytool -noprompt -importcert -alias '${::clientcert}' -file ${::ssldir}/certs/ca.pem -keystore ${directory}/ssl/truststore.jks -storetype JKS -storepass '${truststore_password}'",
