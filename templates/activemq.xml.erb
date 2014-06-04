@@ -229,9 +229,9 @@
           <networkConnector
               name="<%= remotehost -%>_queues"
 <% if( scope.lookupvar('mcollective::connector_ssl') ) then -%>
-              uri="static:(ssl://<%= remotehost -%>:61617)"
+              uri="static:(ssl://<%= remotehost -%>:61617?wireFormat.tightEncodingEnabled=false&amp;wireFormat.maxInactivityDuration=0)"
 <% else -%>
-              uri="static:(tcp://<%= remotehost -%>:61616)"
+              uri="static:(tcp://<%= remotehost -%>:61616?wireFormat.tightEncodingEnabled=false&amp;wireFormat.maxInactivityDuration=0)"
 <% end -%>
               userName="<%= scope.lookupvar('mcollective::broker_user') -%>"
               password="<%= scope.lookupvar('mcollective::broker_password') -%>"
