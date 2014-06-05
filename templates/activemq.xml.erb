@@ -63,16 +63,13 @@
                 queue=">"
                 producerFlowControl="false"
                 memoryLimit="1mb"
+                gcInactiveDestinations="true"
+                inactiveTimoutBeforeGC="300000"
               >
                 <pendingQueuePolicy>
                   <vmQueueCursor/>
                 </pendingQueuePolicy>
               </policyEntry>
-              <policyEntry
-                queue="*.reply.>"
-                gcInactiveDestinations="true"
-                inactiveTimoutBeforeGC="300000"
-              />
             </policyEntries>
           </policyMap>
         </destinationPolicy>
