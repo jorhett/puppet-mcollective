@@ -147,7 +147,10 @@ class mcollective::client(
 
   # Load in all the appropriate mcollective clients
   $defaults  = { version => 'present' }
-  create_resources( mcollective::plugin::client, hiera_hash('mcollective::plugin::clients'), $defaults )                                             
+  $clients  = hiera_hash( 'mcollective::plugin::clients', false )                                                                                                                          
+  if is_hash( $clients ) {
+    create_resources( mcollective::plugin::client, $clients, $defaults )                                             
+  }
 
   # Management of SSL keys
   if( "${mcollective::security_provider}" == 'ssl' ) {

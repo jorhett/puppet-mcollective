@@ -292,7 +292,10 @@ class mcollective::server(
 
   # Load in all the appropriate mcollective agents
   $defaults  = { version => 'present' }
-  create_resources( mcollective::plugin::agent, hiera_hash('mcollective::plugin::agents'), $defaults )                                             
+  $agents  = hiera_hash( 'mcollective::plugin::agents', false )
+  if is_hash( $agents ) {
+    create_resources( mcollective::plugin::agent, $agents, $defaults )                                             
+  }
 
   # Create or remove a logrotate config for the audit log
   if( $audit_logfile == undef ) {
