@@ -57,6 +57,18 @@
 #    Defines a known hosts file for use instead of ~/.ssh/known_hosts
 #    Default: undefined  (only matters if security_provider is sshkey)
 #
+# [*disc_method*]
+#    Defines the default discovery method to use
+#    Default: mc
+#
+# [*disc_options*]
+#    Defines the default discovery options to use
+#    Default: undefined
+#
+# [*da_threshold*]
+#    Defines the threshold used to determine when to use direct addressing
+#    Default: 10
+#
 # === Variables
 #
 # This class makes use of these variables from base mcollective class
@@ -121,6 +133,9 @@ class mcollective::client(
   $logfacility  = 'user',
   $keeplogs     = '5',
   $max_log_size = '2097152',
+  $disc_method  = 'mc',
+  $disc_options = undef,
+  $da_threshold = '10',
 )
   inherits mcollective {
 
@@ -131,6 +146,7 @@ class mcollective::client(
   validate_array( $collectives )
   validate_re( $version, '^present$|^latest$|^[._0-9a-zA-Z:-]+$' )
   validate_re( $unix_group, '^[._0-9a-zA-Z-]+$' )
+  validate_re( $da_threshold, '^[0-9]+$' )
 
   package { $package:
     ensure  => $version,

@@ -47,11 +47,14 @@ plugin.ssl_server_public = <%= scope.lookupvar('mcollective::etcdir') -%>/ssl/se
 securityprovider = aes_security
 <% end -%>
 
-# Use auto-discovery 
-default_discovery_method = mc
-# ...or pre-configure the list of nodes
-#default_discovery_method = flatfile
-#default_discovery_options = /etc/mcollective/nodes.txt
+# Discovery 
+default_discovery_method = <%= scope.lookupvar('disc_method') %>
+if( <%= scope.lookupvar('da_threshold') -%> ) then -%>
+direct_addressing_threshold = <%= scope.lookupvar('da_threshold') %>
+<% end -%>
+if( <%= scope.lookupvar('disc_options') -%> ) then -%>
+default_discovery_options = <%= scope.lookupvar('disc_options') %>
+<% end -%>
 
 # Miscellaneous settings
 color = 1
