@@ -99,7 +99,7 @@
 #
 # [*psk_callertype*]
 #   Valid to put in the 'caller' field of each request.
-#   Values: uid (default), gid, user, group, identity                                                                                                                                                                                        
+#   Values: uid (default), gid, user, group, identity
 #
 # === Examples
 #
@@ -123,8 +123,8 @@ class mcollective::client(
   $package      = $mcollective::params::client_package_name,
 
   # Package update?
-  $version              = 'latest',
-  $sshkey_known_hosts   = undef,
+  $version            = 'latest',
+  $sshkey_known_hosts = undef,
 
   # Logging
   $logfile      = $mcollective::params::logfile,
@@ -161,11 +161,18 @@ class mcollective::client(
     require => Package[ $package ],
   }
 
-  # Load in all the appropriate mcollective clients
+  # Handle all per-user configurations
+  $userdefaults  = { group => 'wheel' }
+  $userlist  = hiera_hash( 'mcollective::userconfigs', false )
+  if is_hash( $userlist ) {
+    create_resources( mcollective::userconfig, $userlist, $userdefaults )
+  }
+
+  # Load in all the appropriate mcollective client plugins
   $defaults  = { version => 'present' }
-  $clients  = hiera_hash( 'mcollective::plugin::clients', false )                                                                                                                          
+  $clients  = hiera_hash( 'mcollective::plugin::clients', false )
   if is_hash( $clients ) {
-    create_resources( mcollective::plugin::client, $clients, $defaults )                                             
+    create_resources( mcollective::plugin::client, $clients, $defaults )
   }
 
   # Management of SSL keys

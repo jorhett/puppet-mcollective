@@ -1,0 +1,85 @@
+# Connector
+libdir = <%= scope.lookupvar('mcollective::libdir') %>
+direct_addressing = 1
+<% if( @collectives ) then -%>
+main_collective = <%= @collectives[0] %>
+collectives = <%- @collectives.each do |collective| -%><%= collective -%>,<% end -%>                                                                                                                                           
+<% end -%>
+
+connector = <%= scope.lookupvar('mcollective::connector') %>
+<% if( scope.lookupvar('mcollective::connector') == 'rabbitmq' ) then -%>
+plugin.rabbitmq.vhost = /mcollective
+<% elsif( scope.lookupvar('mcollective::connector') == 'activemq' ) then -%>
+plugin.activemq.heartbeat_interval = 30
+<% end -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.size = <%= @hosts.length %>
+<% @hosts.each_with_index do |mqhost, index| -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.host = <%= mqhost %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.port = <%= scope.lookupvar('mcollective::_port') %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.user = <%= scope.lookupvar('mcollective::client_user') %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.password = <%= scope.lookupvar('mcollective::client_password') %>
+<% if( scope.lookupvar('mcollective::connector') == 'activemq' ) then -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl = <%= scope.lookupvar('mcollective::connector_ssl')  %>
+<% if( scope.lookupvar('mcollective::connector_ssl_type') == 'trusted' ) then -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.key = <%= scope.lookupvar('ssl_private') %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.cert = <%= scope.lookupvar('ssl_cert') %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.ca = <%= scope.lookupvar('ca_cert') %>
+<% else -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.fallback = true                          
+<% end -%>
+<% end -%>
+<% end -%>
+
+# Security provider
+<% if( scope.lookupvar('mcollective::security_provider') == 'psk' ) then -%>
+securityprovider = psk
+plugin.psk = <%= scope.lookupvar('mcollective::psk_key') %>
+plugin.psk.callertype = <%= scope.lookupvar('mcollective::psk_callertype') %>
+<% elsif( scope.lookupvar('mcollective::security_provider') == 'sshkey' ) then -%>
+securityprovider = sshkey
+<% if( @sshkey_known_hosts ) then -%>
+plugin.sshkey.client.known_hosts = <%= @sshkey_known_hosts %>
+<% end -%>
+<% elsif( scope.lookupvar('mcollective::security_provider') == 'ssl' ) then -%>
+securityprovider = ssl
+plugin.ssl_server_public = <%= scope.lookupvar('mcollective::etcdir') -%>/ssl/server/public.pem
+plugin.ssl_client_private = <%= scope.lookupvar('private_key') %>
+plugin.ssl_client_public = <%= scope.lookupvar('public_key') %>
+<% elsif( scope.lookupvar('mcollective::security_provider') == 'aes_security' ) then -%>
+securityprovider = aes_security
+plugin.aes_client_private = <%= scope.lookupvar('private_key') %>
+plugin.aes_client_public = <%= scope.lookupvar('public_key') %>
+<% end -%>
+
+# Discovery 
+default_discovery_method = <%= scope.lookupvar('disc_method') %>
+<% if( scope.lookupvar('da_threshold') != '' ) then -%>
+direct_addressing_threshold = <%= scope.lookupvar('da_threshold') %>
+<% end -%>
+<% if( scope.lookupvar('disc_options') != '' ) then -%>
+default_discovery_options = <%= scope.lookupvar('disc_options') %>
+<% end -%>
+
+# Miscellaneous settings
+color = 1
+rpclimitmethod = first
+
+# Performance settings
+direct_addressing_threshold = 10
+ttl = 60
+
+# Logging
+logger_type = <%= @logger_type %>
+loglevel = <%= @log_level %>
+<% if( @logger_type == 'syslog' ) then -%>
+logfacility = <%= @logfacility %>
+<% end -%>
+<% if( @logger_type == 'file' ) then -%>
+logfile = <%= @logfile %>
+<% if( @keeplogs ) then -%>
+keeplogs = <%= @keeplogs %>
+<% end -%>
+<% if( @max_log_size ) then -%>
+max_log_size = <%= @max_log_size %>
+<% end -%>
+<% end -%>
