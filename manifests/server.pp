@@ -280,7 +280,10 @@ class mcollective::server(
     }
 
     # Create rules from YAML for the ActionPolicy module
-    create_resources( mcollective::plugin::actionpolicy, hiera_hash('mcollective::plugin::actionpolicies') )
+    $actionpolicies  = hiera_hash( 'mcollective::plugin::actionpolicies', false )
+    if is_hash( $actionpolicies ) {
+      create_resources( mcollective::plugin::actionpolicy, $actionpolicies )
+    }
   }
 
   # Now start the daemon

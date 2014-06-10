@@ -1,7 +1,7 @@
 define mcollective::plugin::actionpolicy(
   $agent   = $name,
   $default = 'allow',
-  $rules,
+  $rules   = {},
 ) {
 
   # The template iterates through the rules
