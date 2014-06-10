@@ -1,6 +1,6 @@
 <%=
     # remove dynamic facts
-    obj = scope.to_hash.reject {|k,v| k.to_s =~ /^(uptime.*|rubysitedir|_timestamp|memoryfree.*|swapfree.*|title|name|caller_module_name|module_name)$/ }
+    obj = scope.to_hash.reject {|k,v| k.to_s =~ /^(uptime.*|path|rubysitedir|_timestamp|memoryfree.*|swapfree.*|title|name|caller_module_name|module_name)$/ }
 
     # start with leading dashes
     out = "---\n"
