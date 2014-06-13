@@ -47,6 +47,14 @@
 # [*keystore_password*]
 #   Password for the TLS Keystore
 #
+# [*jetty_password*]
+#   admin password for (and enable) the ActiveMQ Jetty Web Admin
+#   Default: null (disabled)
+#
+# [*use_jmx*]
+#   Whether to enable the ActiveMQ JMX MBeans console
+#   Values: true, false (default)
+#
 # === Variables
 #
 # This class makes use of these variables from base mcollective class
@@ -112,6 +120,8 @@ class mcollective::middleware(
   $max_connections = '1000',
   $ensure          = 'running',
   $enable          = 'true',
+  $use_jmx         = false,
+  $jetty_password  = undef,
 
   # This allows override for just this class
   $hosts           = $mcollective::hosts,
@@ -152,6 +162,7 @@ class mcollective::middleware(
   # The main module just presets variables used in client classes.
   validate_re( $connector, [ '^activemq$', '^rabbitmq$' ] )
   validate_bool( $connector_ssl )
+  validate_bool( $use_jmx )
 
   # Main menu
   package { $package: 
@@ -159,6 +170,22 @@ class mcollective::middleware(
     notify  => Service[ $service ],
   }
 
+  # If Jetty is enabled, store the password in the jetty realm properties file
+  if( ( $connector == 'activemq' ) and ( $jetty_password != '' ) ) {
+    $use_jetty = true
+
+    file { "${directory}/jetty-realm.properties":
+      ensure  => file,
+      owner   => $user,
+      group   => 'nobody',
+      mode    => 440,
+      content => template( "mcollective/jetty-realm.properties.erb" ),
+      require => Package[ $package ],
+      before  => File["${directory}/${config_file}"],
+    }
+  }
+
+  # Now build the main file
   file { "${directory}/${config_file}":
     ensure  => file,
     owner   => $user,

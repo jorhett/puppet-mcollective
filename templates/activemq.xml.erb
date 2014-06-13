@@ -20,13 +20,16 @@
 
     <broker xmlns="http://activemq.apache.org/schema/core"
         brokerName="<%= scope.lookupvar('::clientcert') -%>"
-        useJmx="true"
         schedulePeriodForDestinationPurge="60000"
         networkConnectorStartAsync="true"
 <% if( @confversion == '5.9' ) then -%>
         dataDirectory="${activemq.data}"
 <% else -%>
         dataDirectory="${activemq.base}/data"
+<% end -%>
+<% if( @use_jmx ) then -%>
+        useJmx="true"
+        populateJMSXUserID="true"
 <% end -%>
     >
 
@@ -40,10 +43,9 @@
                 MCollective works best with producer flow control disabled.
                   http://activemq.apache.org/producer-flow-control.html
               -->
-              <policyEntry
-                  topic=">"
-                  producerFlowControl="false"
-                  memoryLimit="1mb"
+              <policyEntry topic=">"
+                producerFlowControl="false"
+                memoryLimit="1mb"
               >
                 <pendingSubscriberPolicy>
                   <vmCursor />
@@ -58,9 +60,9 @@
                 </pendingMessageLimitStrategy>
               </policyEntry>
               <!-- MCollective generates a reply queue for most commands.
-                Garbage-collect these after five minutes to conserve memory. -->
-              <policyEntry
-                queue=">"
+                Garbage-collect these after five minutes to conserve memory.
+              -->
+              <policyEntry queue=">"
                 producerFlowControl="false"
                 memoryLimit="1mb"
                 gcInactiveDestinations="true"
@@ -75,20 +77,40 @@
         </destinationPolicy>
 
         <!-- 
-          The managementContext is used to configure how ActiveMQ is exposed in 
-          JMX. By default, ActiveMQ uses the MBean server that is started by 
-          the JVM.  http://activemq.apache.org/jmx.html 
+          The managementContext is used to configure how ActiveMQ is exposed in JMX.
+          If JMX is enabled then we'll configure the port usage to be fixed for easier firewall setup.
+            http://activemq.apache.org/jmx.html 
         -->
         <managementContext>
-            <managementContext createConnector="false"/>
+            <managementContext
+<% if( @use_jmx ) then -%>
+                createConnector="true"
+                connectorHost="localhost"
+                rmiServerPort="1098"
+                connectorPort="1099"
+<% else -%>
+                createConnector="false"
+<% end -%>
+            />
         </managementContext>
 
+<% if( @confversion == '5.9' ) then -%>
+        <!--
+          Configure message persistence for the broker. The default persistence
+          mechanism is the KahaDB store (identified by the kahaDB tag). 
+            http://activemq.apache.org/persistence.html 
+        -->
+        <persistenceAdapter>
+            <kahaDB directory="kahadb"/>
+        </persistenceAdapter>
+
+<% end -%>
         <plugins>
           <statisticsBrokerPlugin/>
           <simpleAuthenticationPlugin>
             <users>
 <% if( @brokernetwork == true ) then -%>
-                <authenticationUser username="<%= scope.lookupvar('mcollective::broker_user') -%>" password="<%= scope.lookupvar('mcollective::broker_password') -%>" groups="admins,everyone"/>
+                <authenticationUser username="<%= scope.lookupvar('mcollective::broker_user') -%>" password="<%= scope.lookupvar('mcollective::broker_password') -%>" groups="brokers,everyone"/>
 <% end -%>
                 <authenticationUser username="<%= scope.lookupvar('mcollective::client_user') -%>" password="<%= scope.lookupvar('mcollective::client_password') -%>" groups="servers,clients,everyone"/>
                 <authenticationUser username="<%= scope.lookupvar('mcollective::server_user') -%>" password="<%= scope.lookupvar('mcollective::server_password') -%>" groups="servers,everyone"/>
@@ -100,8 +122,8 @@
               <authorizationMap>
                 <authorizationEntries>
 <% if( @brokernetwork == true ) then -%>
-                  <authorizationEntry queue=">" write="admins" read="admins" admin="admins" />
-                  <authorizationEntry topic=">" write="admins" read="admins" admin="admins" />
+                  <authorizationEntry queue=">" write="brokers" read="brokers" admin="brokers" />
+                  <authorizationEntry topic=">" write="brokers" read="brokers" admin="brokers" />
 <% end -%>
 <%- @collectives.each do |collective| -%>
                   <authorizationEntry queue="<%= collective %>.>" write="clients,<%= collective %>-clients" read="clients,<%= collective %>-clients" admin="clients,<%= collective %>-clients" />
@@ -252,26 +274,14 @@
 <% end -%>
     </broker>
 
-    <!-- Allows us to use system properties as variables in this configuration file -->
-    <!-- disabled to avoid well-known passwords, may need to enable when using Jetty or other tools below
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <value>file:${activemq.base}/conf/credentials.properties</value>
-        </property>      
-    </bean>
-    -->
+<% if( @use_jetty ) then -%>
+    <!-- Required for Jetty authentication to work -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
 
     <!--
-      Enable web consoles, REST and Ajax APIs and demos.
-<% if( @confversion == '5.9' ) then -%>
-      It also includes Camel (with its web console); see ${ACTIVEMQ_HOME}/conf/camel.xml for more info.
-<% else -%>
-        The web consoles requires by default login, you can disable this in the jetty.xml file
-<% end -%>
-
+      Enable web consoles, REST and Ajax APIs and demos
       See ${ACTIVEMQ_HOME}/conf/jetty.xml for more details.
     -->
-    <!-- disabled for security, don't enable without reading the ActiveMQ documentation
     <import resource="jetty.xml"/>
-    -->
+<% end -%>
 </beans>
