@@ -33,7 +33,7 @@
 #   Values: console (default), syslog, file
 #
 # [*log_level*]
-#   How verbose should logging be? 
+#   How verbose should logging be?
 #   Values: fatal, error, warn (default), info, debug
 #
 # === Variables
@@ -51,7 +51,7 @@
 #   Which middleware connector to use. Values: 'activemq' (default) or 'rabbitmq'
 #
 # [*port*]
-#   Which port to connect to. 
+#   Which port to connect to.
 #
 # [*connector_ssl*]
 #   Use SSL service? Values: false, true
@@ -67,7 +67,7 @@
 #
 # [*psk_callertype*]
 #   Valid to put in the 'caller' field of each request.
-#   Values: uid (default), gid, user, group, identity                                                                                                                                                                                        
+#   Values: uid (default), gid, user, group, identity
 #
 # === Examples
 #
@@ -103,7 +103,7 @@ define mcollective::userconfig(
   validate_re( $group, '^[._0-9a-zA-Z-]+$' )
 
   if( $homedir == 'unknown' ) {
-    $homepath = "/home/$user"
+    $homepath = "/home/${user}"
   }
   else {
     $homepath = $homedir
@@ -116,27 +116,27 @@ define mcollective::userconfig(
   $ssl_cert    = "${homepath}/.puppet/ssl/certs/${user}.pem"
   $ca_cert     = "${homepath}/.puppet/ssl/certs/ca.pem"
 
-  file { [
+  file {[
           "${homepath}/.mcollective.d",
           "${homepath}/.mcollective.d/private_keys",
           "${homepath}/.mcollective.d/public_keys",
           "${homepath}/.mcollective.d/certs",
-         ]:
+        ]:
     ensure => 'directory',
     owner  => $user,
     group  => $group,
   }
 
   exec { "create-private-${user}":
-    path    => "/usr/bin:/usr/local/bin",
-    command => "openssl genrsa -out $private_key 2048",
-    unless  => "/usr/bin/test -e $private_key",
+    path    => '/usr/bin:/usr/local/bin',
+    command => "openssl genrsa -out ${private_key} 2048",
+    unless  => "/usr/bin/test -e ${private_key}",
   }
 
   exec { "create-public-${user}":
-    path    => "/usr/bin:/usr/local/bin",
-    command => "openssl rsa -in $private_key -out $public_key",
-    unless  => "/usr/bin/test -e $public_key",
+    path    => '/usr/bin:/usr/local/bin',
+    command => "openssl rsa -in ${private_key} -out ${public_key}",
+    unless  => "/usr/bin/test -e ${public_key}",
     require => Exec["create-private-${user}"],
   }
 
@@ -144,7 +144,7 @@ define mcollective::userconfig(
     ensure  => file,
     owner   => $user,
     group   => $group,
-    mode    => 440,
+    mode    => '0440',
     content => template( 'mcollective/userconfig.erb' ),
   }
 }

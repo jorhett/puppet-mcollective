@@ -101,7 +101,7 @@
 #   Values: anonymous (default), trusted
 #
 # [*registerinterval*]
-#   How often to resend registration information in seconds. Default 600 
+#   How often to resend registration information in seconds. Default 600
 #
 # === Examples
 #
@@ -119,7 +119,7 @@ class mcollective::middleware(
   $confversion     = '5.8',
   $max_connections = '1000',
   $ensure          = 'running',
-  $enable          = 'true',
+  $enable          = true,
   $use_jmx         = false,
   $jetty_password  = undef,
 
@@ -160,26 +160,26 @@ class mcollective::middleware(
   }
 
   # The main module just presets variables used in client classes.
-  validate_re( $connector, [ '^activemq$', '^rabbitmq$' ] )
-  validate_bool( $connector_ssl )
+  validate_re( $mcollective::connector, [ '^activemq$', '^rabbitmq$' ] )
+  validate_bool( $mcollective::connector_ssl )
   validate_bool( $use_jmx )
 
   # Main menu
-  package { $package: 
+  package { $package:
     ensure  => $version,
     notify  => Service[ $service ],
   }
 
   # If Jetty is enabled, store the password in the jetty realm properties file
-  if( ( $connector == 'activemq' ) and ( $jetty_password != '' ) ) {
+  if( ( $mcollective::connector == 'activemq' ) and ( $jetty_password != '' ) ) {
     $use_jetty = true
 
     file { "${directory}/jetty-realm.properties":
       ensure  => file,
       owner   => $user,
       group   => 'nobody',
-      mode    => 440,
-      content => template( "mcollective/jetty-realm.properties.erb" ),
+      mode    => '0440',
+      content => template('mcollective/jetty-realm.properties.erb'),
       require => Package[ $package ],
       before  => File["${directory}/${config_file}"],
     }
@@ -190,12 +190,12 @@ class mcollective::middleware(
     ensure  => file,
     owner   => $user,
     group   => 0,
-    mode    => 400,
+    mode    => '0400',
     require => Package[ $package ],
     content => template( "mcollective/${config_file}.erb" ),
     notify  => Service[ $service ],
   }
-  
+
   service { $service:
     ensure  => $ensure,
     enable  => $enable,
@@ -209,47 +209,47 @@ class mcollective::middleware(
         ensure  => directory,
         owner   => $user,
         group   => 0,
-        mode    => 0500,
+        mode    => '0500',
         require => Package[ $package ],
     }
     # Keystore
     Exec {
-      path    => ["/bin:/usr/bin:/usr/local/bin"],
+      path    => ['/bin:/usr/bin:/usr/local/bin'],
       timeout => 20,
     }
     # I don't like it, but there's no easy way to build a template of local files.
     # These operations are protected by the directory being unreadable except by activemq user and root
-    exec { "mcollective-create-pem":
+    exec { 'mcollective-create-pem':
       cwd     => "${directory}/ssl",
       command => "cat ${::ssldir}/certs/${clientcert}.pem ${::ssldir}/private_keys/${clientcert}.pem > ${directory}/ssl/combined.pem",
       creates => "${directory}/ssl/combined.pem",
       returns => [0],
       require => File["${directory}/ssl"],
-      before  => Exec["mcollective-create-p12"],
+      before  => Exec['mcollective-create-p12'],
     }
     file { "${directory}/ssl/combined.pem":
       ensure  => file,
       owner   => 0,
       group   => 0,
-      mode    => 0400,
-      require => Exec["mcollective-create-pem"],
+      mode    => '0400',
+      require => Exec['mcollective-create-pem'],
     }
-    exec { "mcollective-create-p12":
+    exec { 'mcollective-create-p12':
       cwd     => "${directory}/ssl",
       command => "openssl pkcs12 -export -in combined.pem -out combined.p12 -name ${::clientcert} -passout pass:${keystore_password}",
       creates => "${directory}/ssl/combined.p12",
       returns => [0],
       require => File["${directory}/ssl/combined.pem"],
-      before  => Exec["mcollective-create-keystore"],
+      before  => Exec['mcollective-create-keystore'],
     }
     file { "${directory}/ssl/combined.p12":
       ensure  => file,
       owner   => 0,
       group   => 0,
-      mode    => 0400,
-      require => Exec["mcollective-create-p12"],
+      mode    => '0400',
+      require => Exec['mcollective-create-p12'],
     }
-    exec { "mcollective-create-keystore":
+    exec { 'mcollective-create-keystore':
       cwd     => "${directory}/ssl",
       command => "keytool -noprompt -importkeystore -destkeystore keystore.jks -srcstoretype PKCS12 -srckeystore combined.p12 -alias '${::clientcert}' -storetype JKS -srcstorepass '${keystore_password}' -deststorepass '${keystore_password}'",
       creates => "${directory}/ssl/keystore.jks",
@@ -261,14 +261,14 @@ class mcollective::middleware(
       ensure => file,
       owner  => $user,
       group  => 0,
-      mode   => 0400,
+      mode   => '0400',
       before => Service[ $service ],
     }
 
     # Truststore
-    if( $brokernetwork or ( "${mcollective::connector_ssl_type}" == 'trusted' ) ) {
+    if( $brokernetwork or ( $mcollective::connector_ssl_type == 'trusted' ) ) {
       validate_re( $truststore_password, '^\S{6,}$', 'Truststore password must be at least 6 characters' )
-      exec { "mcollective-create-truststore":
+      exec { 'mcollective-create-truststore':
         cwd      => "${directory}/ssl",
         command  => "keytool -noprompt -importcert -alias '${::clientcert}' -file ${::ssldir}/certs/ca.pem -keystore ${directory}/ssl/truststore.jks -storetype JKS -storepass '${truststore_password}'",
         creates  => "${directory}/ssl/truststore.jks",
@@ -280,7 +280,7 @@ class mcollective::middleware(
         ensure => file,
         owner  => $user,
         group  => 0,
-        mode   => 0400,
+        mode   => '0400',
         before => Service[ $service ],
       }
     }

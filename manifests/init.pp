@@ -54,7 +54,7 @@
 #   Values: uid (default), gid, user, group, identity
 #
 # [*registerinterval*]
-#   How often to resend registration information in seconds. Default 600 
+#   How often to resend registration information in seconds. Default 600
 #
 # === Examples
 #
@@ -119,32 +119,32 @@ class mcollective(
   }
 
   # Ensure that the common dependency is up to date
-  package { $stomp_package: 
+  package { $stomp_package:
     ensure => $stomp_version,
   }
 
-  # ensure the ssl directory exists for the client and server modules
-  if( ( "${mcollective::security_provider}" == 'aes_security' ) or ( "${mcollective::security_provider}" == 'ssl' ) ) {
+  # ensure the ssl directory exists for the lient and server modules
+  if( ( $mcollective::security_provider == 'aes_security' ) or ( $mcollective::security_provider == 'ssl' ) ) {
     file { "${etcdir}/ssl":
       ensure  => directory,
       owner   => 0,
       group   => 0,
-      mode    => 0555,
+      mode    => '0555',
     }
-    if( "${mcollective::security_provider}" == 'ssl' ) {
+    if( $mcollective::security_provider == 'ssl' ) {
       file { "${etcdir}/ssl/server":
         ensure  => directory,
         owner   => 0,
         group   => 0,
-        mode    => 0555,
+        mode    => '0555',
       }
       @file { "${etcdir}/ssl/server/public.pem":
         ensure  => file,
         owner   => 0,
         group   => 0,
-        mode    => 0444,
+        mode    => '0444',
         links   => follow,
-        replace => true,                                                                                                                                                                                                         
+        replace => true,
         source  => 'puppet:///modules/mcollective/ssl/server/public.pem',
       }
     }

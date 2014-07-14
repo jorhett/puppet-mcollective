@@ -67,7 +67,7 @@
 #   Values: syslog (default), file, console
 #
 # [*log_level*]
-#   How verbose should logging be? 
+#   How verbose should logging be?
 #   Values: fatal, error, warn, info (default), debug
 #
 # [*logfacility*]
@@ -79,7 +79,7 @@
 #
 # [*keeplogs*]
 #   Any positive value will enable log rotation retaining that many files.
-#   A blank or 0 value will disable log rotation.                                                                                                                                                                             
+#   A blank or 0 value will disable log rotation.
 #   Default: 5
 #
 # [*max_log_size*]
@@ -127,11 +127,11 @@
 #   Pre-shared key if provider is psk
 #
 # [*registerinterval*]
-#   How often to resend registration information in seconds. Default 600 
+#   How often to resend registration information in seconds. Default 600
 #
 # === Examples
 #
-#  class { 'mcollective::server': 
+#  class { 'mcollective::server':
 #    authorization_enable => true,
 #  }
 #
@@ -178,7 +178,7 @@ class mcollective::server(
   validate_re( $ensure, '^running$|^stopped$' )
   validate_bool( $enable )
 
-  package { $package: 
+  package { $package:
     ensure => $version,
     notify => Service[ $service ],
   }
@@ -187,14 +187,14 @@ class mcollective::server(
     ensure  => file,
     owner   => 0,
     group   => 0,
-    mode    => 400,
+    mode    => '0400',
     content => template( 'mcollective/server.cfg.erb' ),
     require => Package[ $package ],
     notify  => Service[ $service ],
   }
-  
+
   # Management of SSL keys
-  if( ( "${mcollective::security_provider}" == 'aes_security' ) or ( "${mcollective::security_provider}" == 'ssl' ) ) {
+  if( ( $mcollective::security_provider == 'aes_security' ) or ( $mcollective::security_provider == 'ssl' ) ) {
     Package[$package] -> File["${etcdir}/ssl"]
 
     # copy client public keys to all servers
@@ -202,7 +202,7 @@ class mcollective::server(
       ensure  => directory,
       owner   => 0,
       group   => 0,
-      mode    => 0755,
+      mode    => '0755',
       links   => follow,
       purge   => true,
       force   => true,
@@ -213,7 +213,7 @@ class mcollective::server(
     }
 
     # For SSL module One keypair is shared across all servers
-    if( "${mcollective::security_provider}" == 'ssl' ) {
+    if( $mcollective::security_provider == 'ssl' ) {
       # Get the public key
       realize File["${etcdir}/ssl/server/public.pem"]
 
@@ -222,9 +222,9 @@ class mcollective::server(
         ensure  => file,
         owner   => 0,
         group   => 0,
-        mode    => 0400,
+        mode    => '0400',
         links   => follow,
-        replace => true,                                                                                                                                                                                                         
+        replace => true,
         source  => 'puppet:///modules/mcollective/ssl/server/private.pem',
         require => [ Package[ $package ], File["${etcdir}/ssl/server/public.pem"] ],
         before  => Service[ $service ],
@@ -239,7 +239,7 @@ class mcollective::server(
       ensure  => directory,
       owner   => 0,
       group   => 0,
-      mode    => 0444,
+      mode    => '0444',
       links   => follow,
       recurse => true,
       replace => true,
@@ -254,7 +254,7 @@ class mcollective::server(
       ensure  => directory,
       owner   => 0,
       group   => 0,
-      mode    => 0755,
+      mode    => '0755',
       require => Package[ $package ],
       before  => Service[ $service ],
     }
@@ -263,7 +263,7 @@ class mcollective::server(
       ensure  => file,
       owner   => 0,
       group   => 0,
-      mode    => 0444,
+      mode    => '0444',
       source  => 'puppet:///modules/mcollective/actionpolicy-auth/util/actionpolicy.rb',
       require => File["${etcdir}/server.cfg"],
       before  => Service[ $service ],
@@ -273,7 +273,7 @@ class mcollective::server(
       ensure  => file,
       owner   => 0,
       group   => 0,
-      mode    => 0444,
+      mode    => '0444',
       source  => 'puppet:///modules/mcollective/actionpolicy-auth/util/actionpolicy.ddl',
       require => File["${etcdir}/server.cfg"],
       before  => Service[ $service ],
@@ -297,12 +297,12 @@ class mcollective::server(
   $defaults  = { version => 'present' }
   $agents  = hiera_hash( 'mcollective::plugin::agents', false )
   if is_hash( $agents ) {
-    create_resources( mcollective::plugin::agent, $agents, $defaults )                                             
+    create_resources( mcollective::plugin::agent, $agents, $defaults )
   }
 
   # Create or remove a logrotate config for the audit log
   if( $audit_logfile == undef ) {
-     $auditlog_ensure = absent
+    $auditlog_ensure = absent
   }
   else {
     $auditlog_ensure = file
@@ -313,13 +313,13 @@ class mcollective::server(
     ensure  => directory,
     owner   => 0,
     group   => 0,
-    mode    => 0755,
+    mode    => '0755',
   }
   file { "${etcdir}/../logrotate.d/mcollective-auditlog":
     ensure  => $auditlog_ensure,
     owner   => 0,
     group   => 0,
-    mode    => 0444,
+    mode    => '0444',
     content => template( 'mcollective/logrotate-auditlog.erb' ),
   }
 }

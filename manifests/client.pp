@@ -25,7 +25,7 @@
 #   Values: latest (default), present, absent, or specific version number
 #
 # [*unix_group*]
-#   The unix group that will be allowed to read the client.cfg file. 
+#   The unix group that will be allowed to read the client.cfg file.
 #   This is security for the pre-shared-key when PSK is used.
 #   Default: wheel
 #
@@ -34,7 +34,7 @@
 #   Values: console (default), syslog, file
 #
 # [*log_level*]
-#   How verbose should logging be? 
+#   How verbose should logging be?
 #   Values: fatal, error, warn (default), info, debug
 #
 # [*logfacility*]
@@ -156,7 +156,7 @@ class mcollective::client(
     ensure  => file,
     owner   => root,
     group   => $unix_group,
-    mode    => 440,
+    mode    => '0440',
     content => template( 'mcollective/client.cfg.erb' ),
     require => Package[ $package ],
   }
@@ -176,7 +176,7 @@ class mcollective::client(
   }
 
   # Management of SSL keys
-  if( "${mcollective::security_provider}" == 'ssl' ) {
+  if( $mcollective::security_provider == 'ssl' ) {
     # Ensure the package is installed before we create this directory
     Package[$package] -> File["${etcdir}/ssl"]
 
