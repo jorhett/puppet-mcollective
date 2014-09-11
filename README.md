@@ -3,9 +3,9 @@
 ## Overview 
 
 This is an MCollective module for Puppet. This module was used in the development of the book
-.. image:: http://akamaicovers.oreilly.com/images/0636920032472/cat.gif
-    :alt: Learning MCollective cover
-    :align: left
+<div style="float: right">
+    <a href="http://shop.oreilly.com/product/0636920032472.do" target="OReilly"><img src="http://akamaicovers.oreilly.com/images/0636920032472/cat.gif" alt="Cover of Learning MCollective" title="Learning MCollective" align="left" /></a>
+</div>
 
 O'Reilly Media, Inc  
 http://shop.oreilly.com/product/0636920032472.do  
