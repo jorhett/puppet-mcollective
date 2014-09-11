@@ -51,7 +51,7 @@ Hiera:
 ```
 
 ```puppet
-node 'default.example.net' {
+node default {
     include mcollective::server
 }
 node 'activemq.example.net' {
