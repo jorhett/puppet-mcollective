@@ -6,8 +6,9 @@
     <a href="http://shop.oreilly.com/product/0636920032472.do" target="OReilly"><img src="http://akamaicovers.oreilly.com/images/0636920032472/cat.gif" alt="Cover of Learning MCollective" title="Learning MCollective" align="left" /></a>
 </div>
 
-This is an MCollective module for Puppet. This module was used in the development of the book.
-[Learning MCollective](http://shop.oreilly.com/product/0636920032472.do)  
+This is an MCollective module for Puppet. This module was used in the development of the book
+[Learning MCollective](http://shop.oreilly.com/product/0636920032472.do).  
+
 O'Reilly Media, Inc.  
 http://shop.oreilly.com/product/0636920032472.do  
 ISBN: [978-1-4919-4567-4](http://shop.oreilly.com/product/0636920032472.do)  
