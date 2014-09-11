@@ -4,9 +4,9 @@
 
 This is an MCollective module for Puppet. This module was used in the development of the book  
 [![Learning MCollective cover](http://akamaicovers.oreilly.com/images/0636920032472/cat.gif)](http://shop.oreilly.com/product/0636920032472.do)
-O'Reilly Media, Inc  
-http://shop.oreilly.com/product/0636920032472.do
-ISBN: [978-1-4919-4567-4](http://shop.oreilly.com/product/0636920032472.do)
+ O'Reilly Media, Inc  
+ http://shop.oreilly.com/product/0636920032472.do
+ ISBN: [978-1-4919-4567-4](http://shop.oreilly.com/product/0636920032472.do)
 
 ## Description
 
