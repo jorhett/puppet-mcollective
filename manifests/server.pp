@@ -178,6 +178,10 @@ class mcollective::server(
   validate_re( $ensure, '^running$|^stopped$' )
   validate_bool( $enable )
 
+  # Ensure the facts cronjob is set up or removed
+  include mcollective::facts::cronjob
+
+  # Now install the packages
   package { $package:
     ensure => $version,
     notify => Service[ $service ],
