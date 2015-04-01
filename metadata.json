@@ -1,0 +1,28 @@
+{
+  "name": "jorhett-mcollective",
+  "version": "0.1.2",
+  "author": "Jo Rhett",
+  "license": "Apache 2.0",
+  "summary": "Configures MCollective servers, clients, and middleware brokers; handles networks of brokers, subcollectives, and TLS security options",
+  "source": "https://github.com/jorhett/puppet-mcollective",
+  "project_page": "https://github.com/jorhett/puppet-mcollective",
+  "issues_url": "https://github.com/jorhett/puppet-mcollective/issues",
+  "tags": ["mcollective","activemq"],
+  "operatingsystem_support": [
+    {
+      "operatingsystem":"RedHat",
+      "operatingsystemrelease":[ "6.0","7.0" ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [ "14.10", "14.04", "13.10", "13.04", "12.10", "12.04" ]
+    },
+    {
+      "operatingsystem": "FreeBSD",
+      "operatingsystemrelease": [ "9.3", "10.0" ]
+    }
+   ],
+  "dependencies": [
+    { "name": "puppetlabs/stdlib", "version_requirement": ">= 3.x" }
+  ]
+}
