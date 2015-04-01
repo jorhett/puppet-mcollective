@@ -61,4 +61,10 @@ class mcollective::params {
     /(?i-mx:ubuntu|debian)/        => '/etc/activemq',
     /(?i-mx:freebsd)/              => '/usr/local/etc/activemq',
   }
+
+  $activemq_defaults_file = $::osfamily ? {
+    /(?i-mx:centos|fedora|redhat)/ => '/etc/sysconfig/activemq',
+    /(?i-mx:ubuntu|debian)/        => '/etc/default/activemq',
+    /(?i-mx:freebsd)/              => undef,
+  }
 }

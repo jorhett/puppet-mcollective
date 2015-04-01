@@ -1,6 +1,6 @@
 # == Class: mcollective::middleware
 #
-# This module manages the MCollective server agent
+# This module manages the MCollective middleware transport
 #
 # === Parameters
 #
@@ -16,6 +16,10 @@
 #   The middleware configuration file
 #   Defaults to $mcollective::params::activemq_config_file which defaults to os-dependent value
 #
+# [*defaults_file*]
+#   The middleware init defaults file
+#   Defaults to $mcollective::params::activemq_defaults_file which defaults to os-dependent value
+#
 # [*package*]
 #   The name of the package to install or remove
 #   Defaults to os-dependent value from mcollective::params::activemq_package_name
@@ -23,15 +27,16 @@
 # [*version*]
 #   The version or state of the package: latest, present (default), absent, or specific version number
 #
-# [*confversion*]
-#   The config version: 5.8 (default) or 5.9
-#
 # [*max_connections*]
 #   The maximum number of connections: default 1000
 #
 # [*service*]
 #   The name of the service to manage
 #   Defaults to os-dependent value from mcollective::params::activemq_service_name
+#
+# [*java_memory_size*]
+#   The memory size allowed for JVM heap
+#   Defaults to '512m'
 #
 # [*ensure*]
 #   Should the service be running?
@@ -115,23 +120,24 @@
 #       - activemq.2.example.net
 #
 class mcollective::middleware(
-  $version         = 'present',
-  $confversion     = '5.8',
-  $max_connections = '1000',
-  $ensure          = 'running',
-  $enable          = true,
-  $use_jmx         = false,
-  $jetty_password  = undef,
+  $version          = 'present',
+  $max_connections  = '1000',
+  $ensure           = 'running',
+  $enable           = true,
+  $use_jmx          = false,
+  $jetty_password   = undef,
+  $java_memory_size = '512m',
 
   # This allows override for just this class
-  $hosts           = $mcollective::hosts,
+  $hosts         = $mcollective::hosts,
 
   # These are OS-specific
-  $package      = $mcollective::params::activemq_package_name,
-  $service      = $mcollective::params::activemq_service_name,
-  $user         = $mcollective::params::activemq_user_name,
-  $directory    = $mcollective::params::activemq_directory,
-  $config_file  = $mcollective::params::activemq_config_file,
+  $package       = $mcollective::params::activemq_package_name,
+  $service       = $mcollective::params::activemq_service_name,
+  $user          = $mcollective::params::activemq_user_name,
+  $directory     = $mcollective::params::activemq_directory,
+  $config_file   = $mcollective::params::activemq_config_file,
+  $defaults_file = $mcollective::params::activemq_defaults_file,
 
   # Truststore and Keystore passwords
   $keystore_password    = undef,    # will be checked if security_provider is either tls option
@@ -194,6 +200,18 @@ class mcollective::middleware(
     require => Package[ $package ],
     content => template( "mcollective/${config_file}.erb" ),
     notify  => Service[ $service ],
+  }
+
+  if( ( $mcollective::connector == 'activemq' ) and ( $defaults_file != '' ) ) {
+    file { '/etc/sysconfig/activemq':
+      ensure  => file,
+      owner   => $user,
+      group   => 0,
+      mode    => '0444',
+      require => Package[ $package ],
+      content => template( "mcollective/activemq.sysconfig.erb" ),
+      notify  => Service[ $service ],
+    }
   }
 
   service { $service:
