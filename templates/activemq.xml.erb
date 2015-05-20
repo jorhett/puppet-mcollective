@@ -20,6 +20,9 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
+    <!-- Allows us to use system properties as variables in this configuration file -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+
     <broker xmlns="http://activemq.apache.org/schema/core"
         brokerName="<%= scope.lookupvar('::clientcert') -%>"
         schedulePeriodForDestinationPurge="60000"
@@ -260,9 +263,6 @@
     </broker>
 
 <% if( @use_jetty ) then -%>
-    <!-- Required for Jetty authentication to work -->
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
-
     <!--
       Enable web consoles, REST and Ajax APIs and demos
       See ${ACTIVEMQ_HOME}/conf/jetty.xml for more details.
