@@ -1,6 +1,6 @@
 {
   "name": "jorhett-mcollective",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Jo Rhett",
   "license": "Apache 2.0",
   "summary": "Configures MCollective servers, clients, and middleware brokers; handles networks of brokers, subcollectives, and TLS security options",
