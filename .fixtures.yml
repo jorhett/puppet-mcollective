@@ -1,5 +1,8 @@
 fixtures:
-  repositories:
-    stdlib: git://github.com/puppetlabs/puppetlabs-stdlib.git
   symlinks:
     mcollective: "#{source_dir}"
+
+  forge_modules:
+    stdlib:
+      repo: "puppetlabs/stdlib"
+      ref: 3.2.1

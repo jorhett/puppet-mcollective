@@ -137,10 +137,7 @@ class mcollective::client(
   $disc_options = undef,
   $da_threshold = '10',
 )
-  inherits mcollective {
-
-  # Solves parse ordering problem
-  require mcollective
+inherits mcollective {
 
   validate_array( $hosts )
   validate_array( $collectives )

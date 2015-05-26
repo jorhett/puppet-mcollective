@@ -172,8 +172,8 @@ class mcollective::middleware(
 
   # Main menu
   package { $package:
-    ensure  => $version,
-    notify  => Service[ $service ],
+    ensure => $version,
+    notify => Service[ $service ],
   }
 
   # If Jetty is enabled, store the password in the jetty realm properties file
@@ -209,7 +209,7 @@ class mcollective::middleware(
       group   => 0,
       mode    => '0444',
       require => Package[ $package ],
-      content => template( "mcollective/activemq.sysconfig.erb" ),
+      content => template( 'mcollective/activemq.sysconfig.erb' ),
       notify  => Service[ $service ],
     }
   }
@@ -287,12 +287,12 @@ class mcollective::middleware(
     if( $brokernetwork or ( $mcollective::connector_ssl_type == 'trusted' ) ) {
       validate_re( $truststore_password, '^\S{6,}$', 'Truststore password must be at least 6 characters' )
       exec { 'mcollective-create-truststore':
-        cwd      => "${directory}/ssl",
-        command  => "keytool -noprompt -importcert -alias '${::clientcert}' -file ${::ssldir}/certs/ca.pem -keystore ${directory}/ssl/truststore.jks -storetype JKS -storepass '${truststore_password}'",
-        creates  => "${directory}/ssl/truststore.jks",
-        returns  => [0],
-        require  => File["${directory}/ssl"],
-        before   => File["${directory}/ssl/truststore.jks"],
+        cwd     => "${directory}/ssl",
+        command => "keytool -noprompt -importcert -alias '${::clientcert}' -file ${::ssldir}/certs/ca.pem -keystore ${directory}/ssl/truststore.jks -storetype JKS -storepass '${truststore_password}'",
+        creates => "${directory}/ssl/truststore.jks",
+        returns => [0],
+        require => File["${directory}/ssl"],
+        before  => File["${directory}/ssl/truststore.jks"],
       }
       file { "${directory}/ssl/truststore.jks":
         ensure => file,

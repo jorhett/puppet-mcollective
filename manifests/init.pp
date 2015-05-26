@@ -100,6 +100,12 @@ class mcollective(
 )
   inherits mcollective::params {
 
+  # Ensure that someone can order against this main class
+  #contain 'mcollective::client'
+  #contain 'mcollective::server'
+  #contain 'mcollective::facts'
+  #contain 'mcollective::middleware'
+
   # The main module just presets variables used in client classes.
   validate_array( $hosts )
   validate_re( $connector, [ '^activemq$', '^rabbitmq$' ] )
@@ -107,7 +113,7 @@ class mcollective(
   validate_bool( $connector_ssl )
 
   if( $security_provider == 'psk' ) {
-    validate_re( $psk_key, '^\S{20}', 'Please use a longer string of non-writespace characters for the pre-shared key' )
+    validate_re( $psk_key, '^\S{20}', 'Please use a longer string of non-whitespace characters for the pre-shared key' )
   }
 
   # Set the appropriate default port based on whether SSL is enabled
@@ -126,17 +132,17 @@ class mcollective(
   # ensure the ssl directory exists for the lient and server modules
   if( ( $mcollective::security_provider == 'aes_security' ) or ( $mcollective::security_provider == 'ssl' ) ) {
     file { "${etcdir}/ssl":
-      ensure  => directory,
-      owner   => 0,
-      group   => 0,
-      mode    => '0555',
+      ensure => directory,
+      owner  => 0,
+      group  => 0,
+      mode   => '0555',
     }
     if( $mcollective::security_provider == 'ssl' ) {
       file { "${etcdir}/ssl/server":
-        ensure  => directory,
-        owner   => 0,
-        group   => 0,
-        mode    => '0555',
+        ensure => directory,
+        owner  => 0,
+        group  => 0,
+        mode   => '0555',
       }
       @file { "${etcdir}/ssl/server/public.pem":
         ensure  => file,

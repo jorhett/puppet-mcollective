@@ -314,10 +314,10 @@ class mcollective::server(
 
   # This assumes that both mcollective and logrotate descend from a common etc directory
   file { "${etcdir}/../logrotate.d":
-    ensure  => directory,
-    owner   => 0,
-    group   => 0,
-    mode    => '0755',
+    ensure => directory,
+    owner  => 0,
+    group  => 0,
+    mode   => '0755',
   }
   file { "${etcdir}/../logrotate.d/mcollective-auditlog":
     ensure  => $auditlog_ensure,
