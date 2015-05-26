@@ -1,4 +1,16 @@
-##2015-05-26 - Release 0.1.4
+##2015-05-26 - Release 0.1.5
+###Added rspec tests
+
+####Features
+- Added rspec tests for every class
+
+####Bugfixes
+- Fix mistype in error message
+- Remove extra spaces that puppet-lint didn't like
+- Removed a set of double quotes without a variable inside
+- Fixed dependency resolution problem
+
+##2015-05-25 - Release 0.1.4
 ###Changed to BSD 3-Clause License
 
 The module has been changed to the BSD 3-clause license.

@@ -6,7 +6,8 @@
     <a href="http://shop.oreilly.com/product/0636920032472.do" target="OReilly"><img src="http://akamaicovers.oreilly.com/images/0636920032472/cat.gif" alt="Cover of Learning MCollective" title="Learning MCollective" align="left" /></a>
 </div>
 
-This is an MCollective module for Puppet. This module was used in the development of the book
+This is an MCollective module for Puppet.  It configures MCollective brokers,
+servers, and clients without any other dependency classes, as documented in
 [Learning MCollective](http://shop.oreilly.com/product/0636920032472.do).  
 
 O'Reilly Media, Inc.  
