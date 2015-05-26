@@ -53,9 +53,6 @@ describe 'mcollective::client' do
         :osfamily => 'Debian'
       }
     end
-    let(:pre_condition) do
-     'include mcollective::params'
-    end
 
     it do
       should contain_package('mcollective-client').with({
