@@ -86,6 +86,11 @@
 #    Max size in bytes for log files before rotation happens.
 #    Default: 2097152 (2mb)
 #
+# [*logrotate_directory*]
+#    Directory where logrotate files are stored.
+#    Default: /etc/logrotate.d
+#    Nil or Undef value will disable logrotate installation
+#
 # [*sshkey_authorized_keys*]
 #    Defines a authorized keys file for use instead of ~/.ssh/authorized_keys
 #    Default: undefined  (only matters if security_provider is sshkey)
@@ -163,6 +168,7 @@ class mcollective::server(
   $ssh_authorized_keys          = undef,
 
   # Logging
+  $logrotate_directory          = $mcollective::params::logrotate_directory,
   $logfile                      = $mcollective::params::logfile,
   $logger_type                  = 'syslog',
   $log_level                    = 'info',
@@ -312,18 +318,22 @@ class mcollective::server(
     $auditlog_ensure = file
   }
 
-  # This assumes that both mcollective and logrotate descend from a common etc directory
-  file { "${etcdir}/../logrotate.d":
-    ensure => directory,
-    owner  => 0,
-    group  => 0,
-    mode   => '0755',
-  }
-  file { "${etcdir}/../logrotate.d/mcollective-auditlog":
-    ensure  => $auditlog_ensure,
-    owner   => 0,
-    group   => 0,
-    mode    => '0444',
-    content => template( 'mcollective/logrotate-auditlog.erb' ),
+  # Only install logrotate if the logrotate directory is installed
+  if( $logrotate_directory ) {
+    file { 'logrotate-directory':
+      ensure => directory,
+      path   => $logrotate_directory,
+      owner  => 0,
+      group  => 0,
+      mode   => '0755',
+    }
+    file { 'logrotate-auditlog':
+      ensure  => $auditlog_ensure,
+      path    => "${logrotate_directory}/mcollective-auditlog",
+      owner   => 0,
+      group   => 0,
+      mode    => '0444',
+      content => template( 'mcollective/logrotate-auditlog.erb' ),
+    }
   }
 }

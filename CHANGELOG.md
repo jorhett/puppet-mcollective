@@ -1,3 +1,13 @@
+##2015-05-27 - Release 0.1.6
+###Added $logrotate_directory parameter
+
+####Features
+- Added rspec tests for platform defaults
+- Added new $logrotate_directory variable
+
+The new variable defaults to backwards compatible changes,
+but allows it to be set to undef/nil to disable logrotate file installation.
+
 ##2015-05-26 - Release 0.1.5
 ###Added rspec tests
 

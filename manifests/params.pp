@@ -11,6 +11,11 @@ class mcollective::params {
     default           => '/etc/puppetlabs/mcollective',
   }
 
+  $logrotate_directory = $::osfamily ? {
+    /(?i-mx:freebsd)/ => '/usr/local/etc/logrotate.d',
+    default           => '/etc/logrotate.d',
+  }
+
   $libdir = $::osfamily ? {
     /(?i-mx:redhat)/  => '/usr/libexec/mcollective',
     /(?i-mx:debian)/  => '/usr/share/mcollective/plugins',

@@ -11,9 +11,13 @@ describe 'mcollective::server' do
   }
 
   context 'with defaults for all parameters' do
-    it { should contain_package('mcollective') }
+    it do
+      should contain_package('mcollective')
+    end
 
-    it { should compile.with_all_deps }
+    it do
+      should compile.with_all_deps
+    end
   end
 
   context "With a package name specified" do
@@ -23,9 +27,23 @@ describe 'mcollective::server' do
       }
     end
 
-    it {
-      should contain_package('mcollectived').with( { 'name' => 'mcollectived' } )
-    }
+    it do
+      should contain_package('mcollectived').with({
+        'name' => 'mcollectived'
+      })
+    end
+  end
+
+  context "With an undefined logrotate directory" do
+    let :params do
+      {
+        :logrotate_directory => '',
+      }
+    end
+
+    it do
+      should_not contain_file('logrotate-directory')
+    end
   end
 
   context "On a RedHat OS with no package name specified" do
@@ -43,6 +61,9 @@ describe 'mcollective::server' do
       should contain_service('mcollective').with({
         'name'   => 'mcollective',
         'ensure' => 'running',
+      })
+      should contain_file('logrotate-directory').with({
+        'path'   => '/etc/logrotate.d',
       })
     end
   end
