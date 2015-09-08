@@ -8,14 +8,15 @@
 #   The username clients will use to authenticate. Default: client
 #
 # [*client_password*]
-#   Required: The password clients will use to authenticate
+#   The password clients will use to authenticate
+#   Required for mcollective::client and mcollective::middleware classes
 #
 # [*server_user*]
-#   The username servers will use to authenticate. Default: client
+#   The username servers will use to authenticate. Default: server
 #
 # [*server_password*]
-#   The password servers will use to authenticate. Default: client
-#   Required: The password servers will use to authenticate
+#   The password servers will use to authenticate.
+#   Required for mcollective::server and mcollective::middleware classes
 #
 # [*broker_user*]
 #   The username brokers will use to authenticate. Default: admin
@@ -82,11 +83,11 @@ class mcollective(
 
   # Puppet v3 will look for values in Hiera before falling back to defaults defined here
   $server_user          =  'server',
-  $server_password,     # required
+  $server_password      = undef,
   $client_user          =  'client',
-  $client_password,     # required
+  $client_password      = undef,
   $broker_user          =  'admin',
-  $broker_password      = undef,   # will be checked if multiple hosts are defined
+  $broker_password      = undef,
   $connector            = 'activemq',
   $connector_ssl        = false,
   $connector_ssl_type   = 'anonymous',

@@ -13,11 +13,11 @@
 #   Defaults to an os-dependent location in mcollective::params
 #
 # [*hosts*]
-#   An array of middleware brokers for the client to connect
+#   An array of middleware brokers for the server to connect
 #   Defaults to $mcollective::hosts
 #
 # [*collectives*]
-#   An array of collectives for the client to subscribe to
+#   An array of collectives for the server to subscribe to
 #   Defaults to $mcollective::collectives
 #
 # [*package*]
@@ -99,17 +99,11 @@
 #
 # This class makes use of these variables from base mcollective class
 #
-# [*client_user*]
-#   The username clients will use to authenticate. Default: client
-#
-# [*client_password*]
-#   Required: The password clients will use to authenticate
-#
 # [*server_user*]
-#   The username servers will use to authenticate. Default: client
+#   The username servers will use to authenticate. Default: server
 #
 # [*server_password*]
-#   The password servers will use to authenticate. Default: client
+#   The password servers will use to authenticate.
 #   Required: The password servers will use to authenticate
 #
 # [*connector*]
@@ -183,6 +177,10 @@ class mcollective::server(
   validate_re( $version, '^present$|^latest$|^[._0-9a-zA-Z:-]+$' )
   validate_re( $ensure, '^running$|^stopped$' )
   validate_bool( $enable )
+
+  # Validate that server username and password were supplied
+  validate_re( $server_user, '^.{5}', 'Please provide a server username' )
+  validate_re( $server_password, '^.{12}', 'Please provide at last twelve characters in server password' )
 
   # Ensure the facts cronjob is set up or removed
   include mcollective::facts::cronjob

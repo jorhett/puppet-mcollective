@@ -145,6 +145,10 @@ inherits mcollective {
   validate_re( $unix_group, '^[._0-9a-zA-Z-]+$' )
   validate_re( $da_threshold, '^[0-9]+$' )
 
+  # Validate that client username and password were supplied
+  validate_re( $client_user, '^.{5}', 'Please provide a client username' )
+  validate_re( $client_password, '^.{12}', 'Please provide at last twelve characters in client password' )
+
   package { $package:
     ensure  => $version,
   }

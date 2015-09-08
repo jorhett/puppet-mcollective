@@ -82,10 +82,10 @@
 #   Required: The password clients will use to authenticate
 #
 # [*server_user*]
-#   The username servers will use to authenticate. Default: client
+#   The username servers will use to authenticate. Default: server
 #
 # [*server_password*]
-#   The password servers will use to authenticate. Default: client
+#   The password servers will use to authenticate.
 #   Required: The password servers will use to authenticate
 #
 # [*broker_user*]
@@ -169,6 +169,13 @@ class mcollective::middleware(
   validate_re( $mcollective::connector, [ '^activemq$', '^rabbitmq$' ] )
   validate_bool( $mcollective::connector_ssl )
   validate_bool( $use_jmx )
+
+  # Validate that client and server username and password were supplied
+  validate_re( $client_user, '^.{5}', 'Please provide a client username' )
+  validate_re( $client_password, '^.{12}', 'Please provide at last twelve characters in client password' )
+  validate_re( $server_user, '^.{5}', 'Please provide a server username' )
+  validate_re( $server_password, '^.{12}', 'Please provide at last twelve characters in server password' )
+
 
   # Main menu
   package { $package:
