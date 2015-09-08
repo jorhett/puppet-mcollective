@@ -4,11 +4,14 @@
 #
 class mcollective::params {
   # Default locations for certain os combinations
-  $etcdir = $::osfamily ? {
-    /(?i-mx:redhat)/  => '/etc/mcollective',
-    /(?i-mx:debian)/  => '/etc/mcollective',
-    /(?i-mx:freebsd)/ => '/usr/local/etc/mcollective',
-    default           => '/etc/puppetlabs/mcollective',
+  $etcdir = $::clientversion ? {
+    /(?:4\.)/  => '/etc/puppetlabs/mcollective',
+    default    => $::osfamily ? {
+      /(?i-mx:redhat)/  => '/etc/mcollective',
+      /(?i-mx:debian)/  => '/etc/mcollective',
+      /(?i-mx:freebsd)/ => '/usr/local/etc/mcollective',
+      default           => '/etc/puppetlabs/mcollective',
+    }
   }
 
   $logrotate_directory = $::osfamily ? {

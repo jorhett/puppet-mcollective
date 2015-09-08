@@ -184,7 +184,7 @@ class mcollective::middleware(
   }
 
   # If Jetty is enabled, store the password in the jetty realm properties file
-  if( ( $mcollective::connector == 'activemq' ) and ( $jetty_password != '' ) ) {
+  if( ( $mcollective::connector == 'activemq' ) and ( $jetty_password != '' ) and ( $jetty_password != undef ) ) {
     $use_jetty = true
 
     file { "${directory}/jetty-realm.properties":

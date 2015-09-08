@@ -1,5 +1,8 @@
 # Connector
 libdir = <%= scope.lookupvar('mcollective::libdir') %>
+<% if( scope.lookupvar('::clientversion').to_f >= 4.0 ) then -%>
+libdir = /opt/puppetlabs/mcollective/plugins
+<% end -%>
 direct_addressing = 1
 <% if( @collectives ) then -%>
 main_collective = <%= @collectives[0] %>

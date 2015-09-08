@@ -5,15 +5,29 @@
 # === Example
 #
 # mcollective::facts::crontab {
-#    $enable => 'present',
+#    $enabled => 'true',
 # }
 #
-class mcollective::facts::cronjob {
+class mcollective::facts::cronjob(
+  $run_every = 'unknown',
+) {
 
-  # if the facts class isn't loaded, remove the cronjob
-  $enable = $mcollective::facts::enable ? {
-    'present'  => 'present',
-    default    => 'absent',
+  # if they passed in Hiera value use that.
+  if( $run_every != 'unknown' ) {
+    $enable = $run_every ? {
+      undef   => 'absent',
+      ''      => 'absent',
+      default => 'present',
+    }
+    $minute = "*/${run_every}"
+  }
+  else {
+    # Otherwise fall back to looking up value (won't work in Puppet 4)
+    $enable = $mcollective::facts::enable ? {
+      'present' => 'present',
+      default   => 'absent',
+    }
+    $minute = '*/10'
   }
 
   # shorten for ease of use
@@ -22,6 +36,6 @@ class mcollective::facts::cronjob {
   cron { 'mcollective-facts':
     ensure  => $enable,
     command => "facter --puppet --yaml > ${yamlfile}.new && ! diff -q ${yamlfile}.new ${yamlfile} > /dev/null && mv ${yamlfile}.new ${yamlfile}",
-    minute  => '*/10',
+    minute  => $minute,
   }
 }

@@ -1,3 +1,15 @@
+##2015-09-08 - Release 0.1.7
+###Puppet 4 Compatibility
+
+####Features
+- Adjusted configuration to work with Puppet 4
+- Added new `facts::cronjob::runevery` parameter to control facts cronjob
+
+####Obsoletes
+The Hiera parameter 'mcollective::facts::cronjob::run_every' is now preferred
+and the only working method for Puppet 4. Use of the 'mcollective::facts' class
+is deprecated and will be removed in v1.0
+
 ##2015-05-27 - Release 0.1.6
 ###Added $logrotate_directory parameter
 
