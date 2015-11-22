@@ -4,8 +4,8 @@
 ####Bugfixes
 - Fixed an error about referencing qualified variable in an optional class
 - Added/improved docs in both README and facts::cronjobs class
-- Fix for trailing comma on collectives (provided by Vadym Chepkovby)
-- Fix for wrong variable name on client plugin loglevel (provided by Vadym Chepkovby)
+- Fix for trailing comma on collectives (provided by Vadym Chepkov)
+- Fix for wrong variable name on client plugin loglevel (provided by Vadym Chepkov)
 - Fix for actionpolicy default name (reported by Taejon Moon) 
 
 ##2015-09-08 - Release 0.1.7
