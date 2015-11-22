@@ -93,6 +93,7 @@ Instead, add this variable to define how many minutes between updates.
 ```YAML
 Hiera: common.yaml
     mcollective::facts::cronjob::run_every: 10
+```
 
 ## Bugs
 
