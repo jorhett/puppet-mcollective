@@ -6,7 +6,7 @@ libdir = /opt/puppetlabs/mcollective/plugins
 direct_addressing = 1
 <% if( @collectives ) then -%>
 main_collective = <%= @collectives[0] %>
-collectives = <%- @collectives.each do |collective| -%><%= collective -%>,<% end -%>                                                                                                                                           
+collectives = <%= @collectives.join(',') %>                                                                                                                                           
 <% end -%>
 
 connector = <%= scope.lookupvar('mcollective::connector') %>
