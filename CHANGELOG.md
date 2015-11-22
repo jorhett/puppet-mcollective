@@ -1,5 +1,11 @@
-##2015-11-22 - Release 0.1.8
-###Bugfixes
+##2015-11-22 - Release 1.0.0
+###Stable release
+
+This release is in use in many production sites and is stable. 
+Only non-breaking bugfixes will be applied to 1.0.X versions going forward.
+
+Release 2.0 and above will only support Puppet 4 / future parser, 
+and will drop support for Puppet 3 and below. 
 
 ####Bugfixes
 - Fixed an error about referencing qualified variable in an optional class
