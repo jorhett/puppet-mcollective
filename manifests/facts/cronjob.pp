@@ -4,32 +4,28 @@
 #
 # === Example
 #
-# mcollective::facts::cronjob {
-#    $runevery,
-# }
+# Hiera: 
+#   mcollective::facts::cronjob::run_every: 15   # every quarter hour 
 #
 class mcollective::facts::cronjob(
   $run_every = 'unknown',
-) {
+)
+inherits mcollective {
 
   # if they passed in Hiera value use that.
-  if( $run_every != 'unknown' ) {
-    $enable = $run_every ? {
-      undef   => 'absent',
-      ''      => 'absent',
-      default => 'present',
-    }
-    $minute = "*/${run_every}"
-  }
-  else {
-    # Otherwise fall back to looking up value (won't work in Puppet 4)
-    $enable = $mcollective::facts::enable ? {
-      'present' => 'present',
-      default   => 'absent',
-    }
-    $minute = '*/10'
+  $enable = $run_every ? {
+    'unknown' => 'absent',
+    undef     => 'absent',
+    ''        => 'absent',
+    default   => 'present',
   }
 
+  # Define the minute to be all if runevery wasn't defined
+  $minute = $enable ? {
+    'absent'  => '*',
+    'present' => "*/${run_every}",
+  }
+  
   # shorten for ease of use
   $yamlfile = "${mcollective::etcdir}/facts.yaml"
 

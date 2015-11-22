@@ -7,7 +7,9 @@
 # include mcollective::facts
 #
 class mcollective::facts {
-  $enable = 'present'
+  class { 'mcollective::facts::cronjob': 
+    run_every => '10',
+  }
 
   # Ensure this class is parsed before the class which uses the value
   Class['mcollective::facts'] -> Class['mcollective::facts::cronjob']
