@@ -43,13 +43,26 @@ The easiest setup is to put the passwords in Hiera and then simply
 include the modules in site or nodes manifest.
 
 ```YAML
-Hiera:
+Hiera: common.yaml
+    classes: 
+      - mcollective::server
+
     mcollective::hosts:
         - 'activemq.example.net'
     mcollective::client_password: 'Client Password'
     mcollective::server_password: 'Server Password'
     mcollective::psk_key        : 'Salt Value'
+
+Hiera: fqdn/activemq.example.net.yaml
+    classes: 
+      - mcollective::middleware
+
+Hiera: fqdn/admin.example.net.yaml
+    classes: 
+      - mcollective::client
 ```
+
+Or if using in profiles with declarative style assignment:
 
 ```puppet
 node default {
@@ -58,14 +71,28 @@ node default {
 node 'activemq.example.net' {
     include mcollective::middleware
 }
-node 'desktop.example.net' {
+node 'admin.example.net' {
     include mcollective::client
 }
 ```
 
-This module is a companion intended for use with the Learning MCollective book,
-and makes a number of changes compared to the PuppetLabs module which are
-explained in the book itself.
+This module is a companion intended for use with the Learning MCollective book.
+
+## Facts
+
+The older version of the book refers to including the `facts` class to have facts
+from Facter and Puppet placed in /etc/mcollective/facts.yaml.
+
+```
+include mcollective::facts
+```
+
+While this still works, it is deprecated and will be removed in a future version.
+Instead, add this variable to define how many minutes between updates. 
+
+```YAML
+Hiera: common.yaml
+    mcollective::facts::cronjob::run_every: 10
 
 ## Bugs
 

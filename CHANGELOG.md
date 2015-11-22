@@ -1,9 +1,19 @@
+##2015-11-22 - Release 0.1.8
+###Bugfixes
+
+####Bugfixes
+- Fixed an error about referencing qualified variable in an optional class
+- Added/improved docs in both README and facts::cronjobs class
+- Fix for trailing comma on collectives (provided by Vadym Chepkovby)
+- Fix for wrong variable name on client plugin loglevel (provided by Vadym Chepkovby)
+- Fix for actionpolicy default name (reported by Taejon Moon) 
+
 ##2015-09-08 - Release 0.1.7
 ###Puppet 4 Compatibility
 
 ####Features
 - Adjusted configuration to work with Puppet 4
-- Added new `facts::cronjob::runevery` parameter to control facts cronjob
+- Added new `mcollective::facts::cronjob::run_every` parameter to control facts updates
 
 ####Obsoletes
 The Hiera parameter 'mcollective::facts::cronjob::run_every' is now preferred
