@@ -6,11 +6,11 @@
 #
 # include mcollective::facts
 #
-class mcollective::facts {
-  class { 'mcollective::facts::cronjob': 
-    run_every => '10',
-  }
+class mcollective::facts inherits mcollective::facts::cronjob {
+  notice('\'mcollective::facts\' class is deprecated and will be removed in v1.0')
 
-  # Ensure this class is parsed before the class which uses the value
-  Class['mcollective::facts'] -> Class['mcollective::facts::cronjob']
+  Cron['mcollective-facts'] {
+    ensure  => 'present',
+    minute  => '*/10',
+  }
 }
