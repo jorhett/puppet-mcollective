@@ -94,7 +94,7 @@ define mcollective::userconfig(
 
   # Logging
   $logger_type  = $mcollective::client::logger_type,
-  $log_level    = $mcollective::client::loglevel,
+  $log_level    = $mcollective::client::log_level,
 ) {
 
   validate_array( $hosts )
