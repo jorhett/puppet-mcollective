@@ -4,8 +4,8 @@
 #
 # === Example
 #
-# mcollective::facts::crontab {
-#    $enabled => 'true',
+# mcollective::facts::cronjob {
+#    $runevery,
 # }
 #
 class mcollective::facts::cronjob(
