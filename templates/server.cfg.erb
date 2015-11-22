@@ -87,7 +87,7 @@ rpcauthorization = 1
 rpcauthprovider = action_policy
 <% if( @authorization_default_policy ) then -%>
 plugin.actionpolicy.enable_default = 1
-plugin.actionpolicy.default_name - <%= @authorization_default_policy -%>
+plugin.actionpolicy.default_name = <%= @authorization_default_policy -%>
 <% else -%>
 plugin.actionpolicy.allow_unconfigured = 1
 <% end -%>
