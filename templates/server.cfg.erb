@@ -8,7 +8,7 @@ daemonize = 1
 direct_addressing = 1
 <% if( @collectives ) then -%>
 main_collective = <%= @collectives[0] %>
-collectives = <%- @collectives.each do |collective| -%><%= collective -%>,<% end -%>                                                                                                                               
+collectives = <%= @collectives.join(',') %>                                                                                                                               
 <% end -%>
 
 # ActiveMQ connector settings:
