@@ -1,4 +1,10 @@
-##2015-11-22 - Release 1.0.0
+##2015-11-26 - Release 1.0.2
+###Bugfix release
+
+####Bugfixes
+- Fixed jetty password template variable reference (reported by devoncustard)
+
+##2015-11-22 - Release 1.0.1
 ###Stable release
 
 This release is in use in many production sites and is stable. 
