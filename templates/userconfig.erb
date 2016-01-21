@@ -21,9 +21,9 @@ plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.pa
 <% if( scope.lookupvar('mcollective::connector') == 'activemq' ) then -%>
 plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl = <%= scope.lookupvar('mcollective::connector_ssl')  %>
 <% if( scope.lookupvar('mcollective::connector_ssl_type') == 'trusted' ) then -%>
-plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.key = <%= scope.lookupvar('ssl_private') %>
-plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.cert = <%= scope.lookupvar('ssl_cert') %>
-plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.ca = <%= scope.lookupvar('ca_cert') %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.key = <%= @trusted_ssl_server_key_real %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.cert = <%= @trusted_ssl_server_cert_real %>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.ca = <%= @trusted_ssl_ca_cert_real %>
 <% else -%>
 plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.fallback = true                          
 <% end -%>
@@ -37,9 +37,20 @@ plugin.psk = <%= scope.lookupvar('mcollective::psk_key') %>
 plugin.psk.callertype = <%= scope.lookupvar('mcollective::psk_callertype') %>
 <% elsif( scope.lookupvar('mcollective::security_provider') == 'sshkey' ) then -%>
 securityprovider = sshkey
+plugin.sshkey.client.learn_public_keys = <%= @sshkey_learn_public_keys %>
+plugin.sshkey.client.overwrite_stored_keys = <%= @sshkey_overwrite_stored_keys %>
 <% if( @sshkey_known_hosts ) then -%>
 plugin.sshkey.client.known_hosts = <%= @sshkey_known_hosts %>
 <% end -%>
+<% if( @sshkey_private_key ) then -%>
+plugin.sshkey.client.private_key = <%= @sshkey_private_key %>
+<% end -%> 
+<% if( @sshkey_send_key ) then -%>
+plugin.sshkey.client.send_key = <%= @sshkey_send_key %>
+<% end -%> 
+<% if( @sshkey_publickey_dir ) then -%>
+plugin.sshkey.client.publickey_dir = <%= @sshkey_publickey_dir %>
+<% end -%> 
 <% elsif( scope.lookupvar('mcollective::security_provider') == 'ssl' ) then -%>
 securityprovider = ssl
 plugin.ssl_server_public = <%= scope.lookupvar('mcollective::etcdir') -%>/ssl/server/public.pem

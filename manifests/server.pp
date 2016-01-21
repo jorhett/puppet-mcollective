@@ -95,6 +95,15 @@
 #    Defines a authorized keys file for use instead of ~/.ssh/authorized_keys
 #    Default: undefined  (only matters if security_provider is sshkey)
 #
+# [*sshkey_private_key*]
+#    The private key used to sign replies to mcollective requests 
+#    Default: undefined  (only matters if security_provider is sshkey)
+#    This uses /etc/ssh/ssh_host_rsa_key if undefined
+#
+# [*sshkey_send_key*]
+#    Send the specified public key back along with the reply for dynamic key management
+#    Default: undefined  (only matters if security_provider is sshkey)
+#
 # === Variables
 #
 # This class makes use of these variables from base mcollective class
@@ -128,6 +137,32 @@
 # [*registerinterval*]
 #   How often to resend registration information in seconds. Default 600
 #
+# [*sshkey_publickey_dir*]
+#    Defines a directory to store received sshkey-based keys
+#    Default: undefined  (only matters if security_provider is sshkey)
+#
+# [*sshkey_learn_public_keys*]
+#    Allows the sshkey plugin to write out sent keys to [*sshkey_publickey_dir*]
+#    Default: Do not send  (only matters if security_provider is sshkey)
+#    Values: true,false (default)
+#
+# [*sshkey_overwrite_stored_keys*]
+#    In the event of a key mismatch, overwrite stored key data
+#    Default: Do not overwrite  (only matters if security_provider is sshkey)
+#    Values: true, false (default)
+#
+# [*trusted_ssl_server_cert*]
+#   The path to your trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_server_key*]
+#   The path to your private key used with the trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_ca_cert*]
+#   The path to your trusted certificate authority certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
 # === Examples
 #
 #  class { 'mcollective::server':
@@ -151,6 +186,9 @@ class mcollective::server(
   $enable                       = true,
   $hosts                        = $mcollective::hosts,
   $collectives                  = $mcollective::collectives,
+  $trusted_ssl_server_cert      = $mcollective::trusted_ssl_server_cert,
+  $trusted_ssl_server_key       = $mcollective::trusted_ssl_server_key,
+  $trusted_ssl_ca_cert          = $mcollective::trusted_ssl_ca_cert,
 
   # Authorization
   $allow_managed_resources      = true,
@@ -159,7 +197,14 @@ class mcollective::server(
   $audit_logfile                = undef,
   $authorization_enable         = undef,
   $authorization_default_policy = undef,
-  $ssh_authorized_keys          = undef,
+  
+  # Authentication
+  $sshkey_authorized_keys       = undef,
+  $sshkey_private_key           = undef,
+  $sshkey_send_key              = undef,
+  $sshkey_publickey_dir         = $mcollective::sshkey_publickey_dir,
+  $sshkey_learn_public_keys     = $mcollective::sshkey_learn_public_keys,
+  $sshkey_overwrite_stored_keys = $mcollective::sshkey_overwrite_stored_keys,
 
   # Logging
   $logrotate_directory          = $mcollective::params::logrotate_directory,

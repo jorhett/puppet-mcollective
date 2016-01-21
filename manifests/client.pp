@@ -53,10 +53,6 @@
 #    Max size in bytes for log files before rotation happens.
 #    Default: 2097152 (2mb)
 #
-# [*sshkey_known_hosts*]
-#    Defines a known hosts file for use instead of ~/.ssh/known_hosts
-#    Default: undefined  (only matters if security_provider is sshkey)
-#
 # [*disc_method*]
 #    Defines the default discovery method to use
 #    Default: mc
@@ -68,6 +64,25 @@
 # [*da_threshold*]
 #    Defines the threshold used to determine when to use direct addressing
 #    Default: 10
+#
+# [*sshkey_private_key*]
+#    A private key used to sign requests with
+#    Default: undefined  (only matters if security_provider is sshkey)
+#    When undefined, sshkey uses the ssh-agent to find a key
+#
+# [*sshkey_private_key_content*]
+#    Defines the content of the private key file for hiera-eyaml integration
+#    Default: undefined
+#    When undefined, openssl will be invoked to generate a new private key
+#
+# [*sshkey_known_hosts*]
+#    A known_hosts file
+#    Default: undefined  (only matters if security_provider is sshkey)
+#    When undefined, sshkey uses /home/$USER/.ssh/known_hosts which is the same as OpenSSH by default
+#
+# [*sshkey_send_key*]
+#    Send the specified public key along with the request for dynamic key management
+#    Default: undefined  (only matters if security_provider is sshkey)
 #
 # === Variables
 #
@@ -101,6 +116,32 @@
 #   Valid to put in the 'caller' field of each request.
 #   Values: uid (default), gid, user, group, identity
 #
+# [*sshkey_publickey_dir*]
+#    Defines a directory to store received sshkey-based keys
+#    Default: undefined  (only matters if security_provider is sshkey)
+#
+# [*sshkey_learn_public_keys*]
+#    Allows the sshkey plugin to write out sent keys to [*sshkey_publickey_dir*]
+#    Default: Do not send  (only matters if security_provider is sshkey)
+#    Values: true,false (default)
+#
+# [*sshkey_overwrite_stored_keys*]
+#    In the event of a key mismatch, overwrite stored key data
+#    Default: Do not overwrite  (only matters if security_provider is sshkey)
+#    Values: true, false (default)
+#
+# [*trusted_ssl_server_cert*]
+#   The path to your trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_server_key*]
+#   The path to your private key used with the trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_ca_cert*]
+#   The path to your trusted certificate authority certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
 # === Examples
 #
 #  class { 'mcollective::client':
@@ -116,15 +157,17 @@
 #
 class mcollective::client(
   # This value can be overridden in Hiera or through class parameters
-  $unix_group   = 'wheel',
-  $etcdir       = $mcollective::etcdir,
-  $hosts        = $mcollective::hosts,
-  $collectives  = $mcollective::collectives,
-  $package      = $mcollective::params::client_package_name,
+  $unix_group                   = 'wheel',
+  $etcdir                       = $mcollective::etcdir,
+  $hosts                        = $mcollective::hosts,
+  $collectives                  = $mcollective::collectives,
+  $package                      = $mcollective::params::client_package_name,
+  $trusted_ssl_server_cert      = $mcollective::trusted_ssl_server_cert,
+  $trusted_ssl_server_key       = $mcollective::trusted_ssl_server_key,
+  $trusted_ssl_ca_cert          = $mcollective::trusted_ssl_ca_cert,
 
   # Package update?
   $version            = 'latest',
-  $sshkey_known_hosts = undef,
 
   # Logging
   $logfile      = $mcollective::params::logfile,
@@ -136,6 +179,15 @@ class mcollective::client(
   $disc_method  = 'mc',
   $disc_options = undef,
   $da_threshold = '10',
+  
+  # Authentication
+  $sshkey_private_key           = undef,
+  $sshkey_private_key_content   = undef,
+  $sshkey_known_hosts           = undef,
+  $sshkey_send_key              = undef,
+  $sshkey_publickey_dir         = $mcollective::sshkey_publickey_dir,
+  $sshkey_learn_public_keys     = $mcollective::sshkey_learn_public_keys,
+  $sshkey_overwrite_stored_keys = $mcollective::sshkey_overwrite_stored_keys,
 )
 inherits mcollective {
 
@@ -160,6 +212,36 @@ inherits mcollective {
     mode    => '0440',
     content => template( 'mcollective/client.cfg.erb' ),
     require => Package[ $package ],
+  }
+  
+  # Create a shared/default private key
+  if( $sshkey_private_key_content ){
+    # If you supplied a path, overwrite it
+    if( $sshkey_private_key ){
+      file{ $sshkey_private_key:
+        ensure  => file,
+        group   => $unix_group,
+        mode    => '0440',
+        content => $sshkey_private_key_content,
+      }
+    }
+    else {
+      # Create a default location
+      $sshkey_private_key = "${etcdir}/sshkey/sshkey_private_key.pem"
+      
+      file {"${etcdir}/sshkey":
+        ensure  =>  'directory',
+        group   =>  $unix_group,
+        mode    =>  '0440',
+      }
+      
+      file {$sshkey_private_key:
+        ensure  =>  file,
+        group   =>  $unix_group,
+        mode    =>  '0440',
+        content =>  $sshkey_private_key_content,
+      }
+    }
   }
 
   # Handle all per-user configurations

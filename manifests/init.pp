@@ -57,6 +57,32 @@
 # [*registerinterval*]
 #   How often to resend registration information in seconds. Default 600
 #
+# [*sshkey_publickey_dir*]
+#    Defines a directory to store received sshkey-based keys
+#    Default: undefined  (only matters if security_provider is sshkey)
+#
+# [*sshkey_learn_public_keys*]
+#    Allows the sshkey plugin to write out sent keys to [*sshkey_publickey_dir*]
+#    Default: Do not send  (only matters if security_provider is sshkey)
+#    Values: true,false (default)
+#
+# [*sshkey_overwrite_stored_keys*]
+#    In the event of a key mismatch, overwrite stored key data
+#    Default: Do not overwrite  (only matters if security_provider is sshkey)
+#    Values: true, false (default)
+#
+# [*trusted_ssl_server_cert*]
+#   The path to your trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_server_key*]
+#   The path to your private key used with the trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_ca_cert*]
+#   The path to your trusted certificate authority certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
 # === Examples
 #
 # node default {
@@ -82,22 +108,29 @@ class mcollective(
   $stomp_version        =  'latest',
 
   # Puppet v3 will look for values in Hiera before falling back to defaults defined here
-  $server_user          =  'server',
-  $server_password      = undef,
-  $client_user          =  'client',
-  $client_password      = undef,
-  $broker_user          =  'admin',
-  $broker_password      = undef,
-  $connector            = 'activemq',
-  $connector_ssl        = false,
-  $connector_ssl_type   = 'anonymous',
-  $port                 = undef,
-  $hosts,               # array required - no default value
-  $collectives          = ['mcollective'],
-  $registerinterval     = 600,
-  $security_provider    = 'psk',
-  $psk_key              = undef,   # will be checked if provider = psk
-  $psk_callertype       = 'uid',
+  $server_user                  =  'server',
+  $server_password              = undef,
+  $client_user                  =  'client',
+  $client_password              = undef,
+  $broker_user                  =  'admin',
+  $broker_password              = undef,
+  $connector                    = 'activemq',
+  $connector_ssl                = false,
+  $connector_ssl_type           = 'anonymous',
+  $port                         = undef,
+  $hosts,                       # array required - no default value
+  $collectives                  = ['mcollective'],
+  $registerinterval             = 600,
+  $security_provider            = 'psk',
+  $psk_key                      = undef,   # will be checked if provider = psk
+  $psk_callertype               = 'uid',
+  $sshkey_publickey_dir         = undef,
+  $sshkey_learn_public_keys     = false,
+  $sshkey_overwrite_stored_keys = false,
+  $trusted_ssl_server_cert      = "${::ssldir}/certs/${::clientcert}.pem",
+  $trusted_ssl_server_key       = "${::ssldir}/private_keys/${::clientcert}.pem",
+  $trusted_ssl_ca_cert          = "${::ssldir}/certs/ca.pem",
+  
 )
   inherits mcollective::params {
 
@@ -153,6 +186,51 @@ class mcollective(
         links   => follow,
         replace => true,
         source  => 'puppet:///modules/mcollective/ssl/server/public.pem',
+      }
+    }
+  }
+  
+  # Setup the sshkey security plugin for the client and server modules
+  if( $mcollective::security_provider == 'sshkey' ) {
+    # Install the sshkeyauth rubygem to the ruby AIO environment
+    package { 'sshkeyauth':
+      ensure   =>  'present',
+      provider =>  'puppet_gem',
+    }
+    
+    # Create parent directory
+    file { ["${libdir}",
+            "${libdir}/mcollective",
+            "${libdir}/mcollective/security", ]:
+      ensure  => directory,
+      owner   => 0,
+      group   => 0,
+      mode    => '0755',
+    }
+
+    #Setup sshkey plugin files
+    file { "${libdir}/mcollective/security/sshkey.rb":
+      ensure  => file,
+      owner   => 0,
+      group   => 0,
+      mode    => '0444',
+      source  => 'puppet:///modules/mcollective/sshkey/security/sshkey.rb',
+    }
+
+    file { "${libdir}/mcollective/security/sshkey.ddl":
+      ensure  => file,
+      owner   => 0,
+      group   => 0,
+      mode    => '0444',
+      source  => 'puppet:///modules/mcollective/sshkey/security/sshkey.ddl',
+    }
+    
+    if( $sshkey_publickey_dir ) {
+      file { $sshkey_publickey_dir:
+       ensure => directory,
+       owner  => 0,
+       group  => 0,
+       mode   => '0666',
       }
     }
   }
