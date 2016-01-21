@@ -23,8 +23,12 @@ plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.us
 plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.password = <%= scope.lookupvar('mcollective::client_password') %>
 <% if( scope.lookupvar('mcollective::connector') == 'activemq' ) then -%>
 plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl = <%= scope.lookupvar('mcollective::connector_ssl')  %>
-<% if( scope.lookupvar('mcollective::connector_ssl_type') != 'trusted' ) then -%>
-plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.fallback = true                          
+<% if( scope.lookupvar('mcollective::connector_ssl_type') == 'trusted' ) then -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.key = <%= scope.lookupvar('::ssldir') -%>/private_keys/<%= scope.lookupvar('clientcert') -%>.pem
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.cert = <%= scope.lookupvar('::ssldir') -%>/certs/<%= scope.lookupvar('clientcert') -%>.pem
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.ca = <%= scope.lookupvar('::ssldir') -%>/certs/ca.pem
+<% else -%>
+plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.<%= index+1 -%>.ssl.fallback = true
 <% end -%>
 <% end -%>
 <% end -%>
