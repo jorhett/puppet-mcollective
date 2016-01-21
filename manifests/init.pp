@@ -156,4 +156,38 @@ class mcollective(
       }
     }
   }
+  
+  # Setup the sshkey security plugin for the client and server modules
+  if( $mcollective::security_provider == 'sshkey' ) {
+    # Install the sshkeyauth rubygem to the ruby AIO environment
+    package { 'sshkeyauth':
+      ensure   =>  'present',
+      provider =>  'puppet_gem',
+    }
+    
+    # Create parent directory
+    file { "${libdir}/mcollective/security":
+      ensure  => directory,
+      owner   => 0,
+      group   => 0,
+      mode    => '0755',
+    }
+
+    #Setup sshkey plugin files
+    file { "${libdir}/mcollective/security/sshkey.rb":
+      ensure  => file,
+      owner   => 0,
+      group   => 0,
+      mode    => '0444',
+      source  => 'puppet:///modules/mcollective/sshkey/security/sshkey.rb',
+    }
+
+    file { "${libdir}/mcollective/security/sshkey.ddl":
+      ensure  => file,
+      owner   => 0,
+      group   => 0,
+      mode    => '0444',
+      source  => 'puppet:///modules/mcollective/sshkey/security/sshkey.ddl',
+    }
+  }
 }
