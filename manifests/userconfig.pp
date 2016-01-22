@@ -153,7 +153,7 @@ define mcollective::userconfig(
   }
   
   # Create the parent default directory if needed
-  if( !$sshkey_private_key || !$sshkey_send_key){
+  if( !$sshkey_private_key or !$sshkey_send_key){
     file {"${homepath}/.mcollective.d":
       ensure => 'directory',
       owner  => $user,
