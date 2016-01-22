@@ -46,8 +46,19 @@ securityprovider = psk
 plugin.psk = <%= scope.lookupvar('mcollective::psk_key') %>
 <% elsif( scope.lookupvar('mcollective::security_provider') == 'sshkey' ) then -%>                                                                                                                                           
 securityprovider = sshkey
+plugin.sshkey.server.learn_public_keys = <%= @sshkey_learn_public_keys %>
+plugin.sshkey.server.overwrite_stored_keys = <%= @sshkey_overwrite_stored_keys %>
 <% if( @sshkey_authorized_keys ) then -%>
 plugin.sshkey.server.known_hosts = <%= @sshkey_authorized_keys %>
+<% end -%> 
+<% if( @sshkey_private_key ) then -%>
+plugin.sshkey.server.private_key = <%= @sshkey_private_key %>
+<% end -%> 
+<% if( @sshkey_send_key ) then -%>
+plugin.sshkey.server.send_key = <%= @sshkey_send_key %>
+<% end -%> 
+<% if( @sshkey_publickey_dir ) then -%>
+plugin.sshkey.server.publickey_dir = <%= @sshkey_publickey_dir %>
 <% end -%> 
 <% elsif( scope.lookupvar('mcollective::security_provider') == 'ssl' ) then -%>
 securityprovider = ssl

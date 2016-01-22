@@ -57,6 +57,20 @@
 # [*registerinterval*]
 #   How often to resend registration information in seconds. Default 600
 #
+# [*sshkey_publickey_dir*]
+#    Defines a directory to store received sshkey-based keys
+#    Default: undefined  (only matters if security_provider is sshkey)
+#
+# [*sshkey_learn_public_keys*]
+#    Allows the sshkey plugin to write out sent keys to [*sshkey_publickey_dir*]
+#    Default: Do not send  (only matters if security_provider is sshkey)
+#    Values: true,false (default)
+#
+# [*sshkey_overwrite_stored_keys*]
+#    In the event of a key mismatch, overwrite stored key data
+#    Default: Do not overwrite  (only matters if security_provider is sshkey)
+#    Values: true, false (default)
+#
 # === Examples
 #
 # node default {
@@ -82,22 +96,26 @@ class mcollective(
   $stomp_version        =  'latest',
 
   # Puppet v3 will look for values in Hiera before falling back to defaults defined here
-  $server_user          =  'server',
-  $server_password      = undef,
-  $client_user          =  'client',
-  $client_password      = undef,
-  $broker_user          =  'admin',
-  $broker_password      = undef,
-  $connector            = 'activemq',
-  $connector_ssl        = false,
-  $connector_ssl_type   = 'anonymous',
-  $port                 = undef,
-  $hosts,               # array required - no default value
-  $collectives          = ['mcollective'],
-  $registerinterval     = 600,
-  $security_provider    = 'psk',
-  $psk_key              = undef,   # will be checked if provider = psk
-  $psk_callertype       = 'uid',
+  $server_user                  =  'server',
+  $server_password              = undef,
+  $client_user                  =  'client',
+  $client_password              = undef,
+  $broker_user                  =  'admin',
+  $broker_password              = undef,
+  $connector                    = 'activemq',
+  $connector_ssl                = false,
+  $connector_ssl_type           = 'anonymous',
+  $port                         = undef,
+  $hosts,                       # array required - no default value
+  $collectives                  = ['mcollective'],
+  $registerinterval             = 600,
+  $security_provider            = 'psk',
+  $psk_key                      = undef,   # will be checked if provider = psk
+  $psk_callertype               = 'uid',
+  $sshkey_publickey_dir         = undef,
+  $sshkey_learn_public_keys     = false,
+  $sshkey_overwrite_stored_keys = false,
+  
 )
   inherits mcollective::params {
 
@@ -115,6 +133,11 @@ class mcollective(
 
   if( $security_provider == 'psk' ) {
     validate_re( $psk_key, '^\S{20}', 'Please use a longer string of non-whitespace characters for the pre-shared key' )
+  }
+  
+  if( $security_provider == 'sshkey' ) {
+    validate_bool( $sshkey_learn_public_keys )
+    validate_bool( $sshkey_overwrite_stored_keys )
   }
 
   # Set the appropriate default port based on whether SSL is enabled

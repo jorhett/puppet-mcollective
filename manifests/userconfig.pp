@@ -38,7 +38,7 @@
 #
 # === Variables
 #
-# This class makes use of these variables from base mcollective class
+# This class makes use of these variables from base mcollective class and client mcollective class
 #
 # [*client_user*]
 #   The username clients will use to authenticate.
@@ -69,6 +69,34 @@
 #   Valid to put in the 'caller' field of each request.
 #   Values: uid (default), gid, user, group, identity
 #
+# [*sshkey_publickey_dir*]
+#    Defines a directory to store received sshkey-based keys
+#    Default: undefined  (only matters if security_provider is sshkey)
+#
+# [*sshkey_learn_public_keys*]
+#    Allows the sshkey plugin to write out sent keys to [*sshkey_publickey_dir*]
+#    Default: Do not send  (only matters if security_provider is sshkey)
+#    Values: true,false (default)
+#
+# [*sshkey_overwrite_stored_keys*]
+#    In the event of a key mismatch, overwrite stored key data
+#    Default: Do not overwrite  (only matters if security_provider is sshkey)
+#    Values: true, false (default)
+#
+# [*sshkey_private_key*]
+#    A private key used to sign requests with
+#    Default: undefined  (only matters if security_provider is sshkey)
+#    When undefined, sshkey uses the ssh-agent to find a key
+#
+# [*sshkey_known_hosts*]
+#    A known_hosts file
+#    Default: undefined  (only matters if security_provider is sshkey)
+#    When undefined, sshkey uses /home/$USER/.ssh/known_hosts which is the same as OpenSSH by default
+#
+# [*sshkey_send_key*]
+#    Send the specified public key along with the request for dynamic key management
+#    Default: undefined  (only matters if security_provider is sshkey)
+#
 # === Examples
 #
 #  mcollective::userconfig { 'jorhett':
@@ -95,6 +123,14 @@ define mcollective::userconfig(
   # Logging
   $logger_type  = $mcollective::client::logger_type,
   $log_level    = $mcollective::client::log_level,
+  
+  # Authentication
+  $sshkey_private_key           = $mcollective::client::sshkey_private_key,
+  $sshkey_known_hosts           = $mcollective::client::sshkey_known_hosts,
+  $sshkey_send_key              = $mcollective::client::sshkey_send_key,
+  $sshkey_publickey_dir         = $mcollective::client::sshkey_publickey_dir,
+  $sshkey_learn_public_keys     = $mcollective::client::sshkey_learn_public_keys,
+  $sshkey_overwrite_stored_keys = $mcollective::client::sshkey_overwrite_stored_keys,
 ) {
 
   validate_array( $hosts )

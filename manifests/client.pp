@@ -53,10 +53,6 @@
 #    Max size in bytes for log files before rotation happens.
 #    Default: 2097152 (2mb)
 #
-# [*sshkey_known_hosts*]
-#    Defines a known hosts file for use instead of ~/.ssh/known_hosts
-#    Default: undefined  (only matters if security_provider is sshkey)
-#
 # [*disc_method*]
 #    Defines the default discovery method to use
 #    Default: mc
@@ -68,6 +64,20 @@
 # [*da_threshold*]
 #    Defines the threshold used to determine when to use direct addressing
 #    Default: 10
+#
+# [*sshkey_private_key*]
+#    A private key used to sign requests with
+#    Default: undefined  (only matters if security_provider is sshkey)
+#    When undefined, sshkey uses the ssh-agent to find a key
+#
+# [*sshkey_known_hosts*]
+#    A known_hosts file
+#    Default: undefined  (only matters if security_provider is sshkey)
+#    When undefined, sshkey uses /home/$USER/.ssh/known_hosts which is the same as OpenSSH by default
+#
+# [*sshkey_send_key*]
+#    Send the specified public key along with the request for dynamic key management
+#    Default: undefined  (only matters if security_provider is sshkey)
 #
 # === Variables
 #
@@ -101,6 +111,20 @@
 #   Valid to put in the 'caller' field of each request.
 #   Values: uid (default), gid, user, group, identity
 #
+# [*sshkey_publickey_dir*]
+#    Defines a directory to store received sshkey-based keys
+#    Default: undefined  (only matters if security_provider is sshkey)
+#
+# [*sshkey_learn_public_keys*]
+#    Allows the sshkey plugin to write out sent keys to [*sshkey_publickey_dir*]
+#    Default: Do not send  (only matters if security_provider is sshkey)
+#    Values: true,false (default)
+#
+# [*sshkey_overwrite_stored_keys*]
+#    In the event of a key mismatch, overwrite stored key data
+#    Default: Do not overwrite  (only matters if security_provider is sshkey)
+#    Values: true, false (default)
+#
 # === Examples
 #
 #  class { 'mcollective::client':
@@ -124,7 +148,6 @@ class mcollective::client(
 
   # Package update?
   $version            = 'latest',
-  $sshkey_known_hosts = undef,
 
   # Logging
   $logfile      = $mcollective::params::logfile,
@@ -136,6 +159,14 @@ class mcollective::client(
   $disc_method  = 'mc',
   $disc_options = undef,
   $da_threshold = '10',
+  
+  # Authentication
+  $sshkey_private_key           = undef,
+  $sshkey_known_hosts           = undef,
+  $sshkey_send_key              = undef,
+  $sshkey_publickey_dir         = $mcollective::sshkey_publickey_dir,
+  $sshkey_learn_public_keys     = $mcollective::sshkey_learn_public_keys,
+  $sshkey_overwrite_stored_keys = $mcollective::sshkey_overwrite_stored_keys,
 )
 inherits mcollective {
 
