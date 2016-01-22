@@ -144,37 +144,61 @@ define mcollective::userconfig(
   else {
     $homepath = $homedir
   }
-  $private_key = "${homepath}/.mcollective.d/private_keys/${user}.pem"
-  $public_key  = "${homepath}/.mcollective.d/public_keys/${user}.pem"
-
-  # Stubs for SSL trusted, must be created by user
-  $ssl_private = "${homepath}/.puppet/ssl/private_keys/${user}.pem"
-  $ssl_cert    = "${homepath}/.puppet/ssl/certs/${user}.pem"
-  $ca_cert     = "${homepath}/.puppet/ssl/certs/ca.pem"
-
-  file {[
-          "${homepath}/.mcollective.d",
-          "${homepath}/.mcollective.d/private_keys",
-          "${homepath}/.mcollective.d/public_keys",
-          "${homepath}/.mcollective.d/certs",
-        ]:
-    ensure => 'directory',
-    owner  => $user,
-    group  => $group,
+  
+  # Create the parent default directory if needed
+  if( !$sshkey_private_key || !$sshkey_send_key){
+    file {"${homepath}/.mcollective.d":
+      ensure => 'directory',
+      owner  => $user,
+      group  => $group,
+    }
   }
-
+  
+  # If you specified a sshkey private key, use it otherwise create one
+  if( $sshkey_private_key) {
+    $private_key = $sshkey_private_key
+  }
+  else {
+    file {"${homepath}/.mcollective.d/private_keys":
+      ensure => 'directory',
+      owner  => $user,
+      group  => $group,
+    }
+    
+    $private_key = "${homepath}/.mcollective.d/private_keys/${user}.pem"
+  }
+  
   exec { "create-private-${user}":
     path    => '/usr/bin:/usr/local/bin',
     command => "openssl genrsa -out ${private_key} 2048",
     unless  => "/usr/bin/test -e ${private_key}",
   }
-
+  
+  # If you specified a sshkey public key, use it otherwise create one
+  if( $sshkey_private_key) {
+    $public_key = $sshkey_send_key
+  }
+  else {
+    file {"${homepath}/.mcollective.d/public_keys":
+      ensure => 'directory',
+      owner  => $user,
+      group  => $group,
+    }
+    
+    $public_key  = "${homepath}/.mcollective.d/public_keys/${user}.pem"
+  }
+  
   exec { "create-public-${user}":
     path    => '/usr/bin:/usr/local/bin',
     command => "openssl rsa -in ${private_key} -out ${public_key}",
     unless  => "/usr/bin/test -e ${public_key}",
     require => Exec["create-private-${user}"],
   }
+
+  # Stubs for SSL trusted, must be created by user
+  $ssl_private = "${homepath}/.puppet/ssl/private_keys/${user}.pem"
+  $ssl_cert    = "${homepath}/.puppet/ssl/certs/${user}.pem"
+  $ca_cert     = "${homepath}/.puppet/ssl/certs/ca.pem"
 
   file { "${homepath}/${filename}":
     ensure  => file,
