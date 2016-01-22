@@ -166,7 +166,7 @@ class mcollective(
     }
     
     # Create parent directory
-    file { "${libdir}/mcollective/security":
+    file { ["${libdir}/mcollective", "${libdir}/mcollective/security"]:
       ensure  => directory,
       owner   => 0,
       group   => 0,
