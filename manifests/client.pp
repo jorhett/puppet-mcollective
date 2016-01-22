@@ -70,6 +70,11 @@
 #    Default: undefined  (only matters if security_provider is sshkey)
 #    When undefined, sshkey uses the ssh-agent to find a key
 #
+# [*sshkey_private_key_content*]
+#    Defines the content of the private key file for hiera-eyaml integration
+#    Default: undefined
+#    When undefined, openssl will be invoked to generate a new private key
+#
 # [*sshkey_known_hosts*]
 #    A known_hosts file
 #    Default: undefined  (only matters if security_provider is sshkey)
@@ -162,6 +167,7 @@ class mcollective::client(
   
   # Authentication
   $sshkey_private_key           = undef,
+  $sshkey_private_key_content   = undef,
   $sshkey_known_hosts           = undef,
   $sshkey_send_key              = undef,
   $sshkey_publickey_dir         = $mcollective::sshkey_publickey_dir,
@@ -191,6 +197,36 @@ inherits mcollective {
     mode    => '0440',
     content => template( 'mcollective/client.cfg.erb' ),
     require => Package[ $package ],
+  }
+  
+  # Create a shared/default private key
+  if( $sshkey_private_key_content ){
+    # If you supplied a path, overwrite it
+    if( $sshkey_private_key ){
+      file{ $sshkey_private_key:
+        ensure  => file,
+        group   => $unix_group,
+        mode    => '0440',
+        content => $sshkey_private_key_content,
+      }
+    }
+    else {
+      # Create a default location
+      $sshkey_private_key = "${etcdir}/sshkey/sshkey_private_key.pem"
+      
+      file {"${etcdir}/sshkey":
+        ensure  =>  'directory',
+        group   =>  $unix_group,
+        mode    =>  '0440',
+      }
+      
+      file {$sshkey_private_key:
+        ensure  =>  file,
+        group   =>  $unix_group,
+        mode    =>  '0440',
+        content =>  $sshkey_private_key_content,
+      }
+    }
   }
 
   # Handle all per-user configurations

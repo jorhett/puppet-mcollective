@@ -36,6 +36,12 @@
 #   How verbose should logging be?
 #   Values: fatal, error, warn (default), info, debug
 #
+# [*sshkey_private_key_content*]
+#    Defines the content of the private key file for hiera-eyaml integration
+#    Default: undefined
+#    When undefined, openssl will be invoked to generate a new private key
+#    This will not inherit from mcollective::client
+#
 # === Variables
 #
 # This class makes use of these variables from base mcollective class and client mcollective class
@@ -126,6 +132,7 @@ define mcollective::userconfig(
   
   # Authentication
   $sshkey_private_key           = $mcollective::client::sshkey_private_key,
+  $sshkey_private_key_content   = undef,
   $sshkey_known_hosts           = $mcollective::client::sshkey_known_hosts,
   $sshkey_send_key              = $mcollective::client::sshkey_send_key,
   $sshkey_publickey_dir         = $mcollective::client::sshkey_publickey_dir,
@@ -168,10 +175,23 @@ define mcollective::userconfig(
     $private_key = "${homepath}/.mcollective.d/private_keys/${user}.pem"
   }
   
-  exec { "create-private-${user}":
-    path    => '/usr/bin:/usr/local/bin',
-    command => "openssl genrsa -out ${private_key} 2048",
-    unless  => "/usr/bin/test -e ${private_key}",
+  # If the key content was provided, use it
+  if( $sshkey_private_key_content ){
+    file {$private_key:
+      ensure  =>  file,
+      owner   =>  $user,
+      group   =>  $group,
+      mode    =>  '0500',
+      content =>  $sshkey_private_key_content,
+    }
+  }
+  else {
+    # Generate a new private key
+    exec { "create-private-${user}":
+      path    => '/usr/bin:/usr/local/bin',
+      command => "openssl genrsa -out ${private_key} 2048",
+      unless  => "/usr/bin/test -e ${private_key}",
+    }
   }
   
   # If you specified a sshkey public key, use it otherwise create one
