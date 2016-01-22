@@ -195,7 +195,7 @@ define mcollective::userconfig(
   }
   
   # If you specified a sshkey public key, use it otherwise create one
-  if( $sshkey_private_key) {
+  if( $sshkey_send_key) {
     $public_key = $sshkey_send_key
   }
   else {
