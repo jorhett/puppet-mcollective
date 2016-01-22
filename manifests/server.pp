@@ -159,7 +159,7 @@ class mcollective::server(
   $audit_logfile                = undef,
   $authorization_enable         = undef,
   $authorization_default_policy = undef,
-  $ssh_authorized_keys          = undef,
+  $sshkey_authorized_keys       = undef,
 
   # Logging
   $logrotate_directory          = $mcollective::params::logrotate_directory,
