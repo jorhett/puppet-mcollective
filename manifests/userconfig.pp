@@ -192,6 +192,14 @@ define mcollective::userconfig(
       command => "openssl genrsa -out ${private_key} 2048",
       unless  => "/usr/bin/test -e ${private_key}",
     }
+    
+    file {$private_key:
+      ensure  =>  file,
+      owner   =>  $user,
+      group   =>  $group,
+      mode    =>  '0500',
+      subscribe =>  Exec["create-private-${user}"],
+    }
   }
   
   # If you specified a sshkey public key, use it otherwise create one
