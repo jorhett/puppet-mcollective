@@ -210,7 +210,7 @@ define mcollective::userconfig(
   
   exec { "create-public-${user}":
     path    => '/usr/bin:/usr/local/bin',
-    command => "openssl rsa -in ${private_key} -out ${public_key}",
+    command => "openssl rsa -in ${private_key} -pubout -out ${public_key}",
     unless  => "/usr/bin/test -e ${public_key}",
     require => Exec["create-private-${user}"],
   }
