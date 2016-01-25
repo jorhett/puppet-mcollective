@@ -209,5 +209,14 @@ class mcollective(
       mode    => '0444',
       source  => 'puppet:///modules/mcollective/sshkey/security/sshkey.ddl',
     }
+    
+    if( $sshkey_publickey_dir )
+      file { $sshkey_publickey_dir:
+       ensure => directory,
+       owner  => 0,
+       group  => 0,
+       mode   => '0666',
+      }
+    }
   }
 }
