@@ -210,7 +210,7 @@ class mcollective(
       source  => 'puppet:///modules/mcollective/sshkey/security/sshkey.ddl',
     }
     
-    if( $sshkey_publickey_dir )
+    if( $sshkey_publickey_dir ) {
       file { $sshkey_publickey_dir:
        ensure => directory,
        owner  => 0,
