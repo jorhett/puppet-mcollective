@@ -134,11 +134,6 @@ class mcollective(
   if( $security_provider == 'psk' ) {
     validate_re( $psk_key, '^\S{20}', 'Please use a longer string of non-whitespace characters for the pre-shared key' )
   }
-  
-  if( $security_provider == 'sshkey' ) {
-    validate_bool( $sshkey_learn_public_keys )
-    validate_bool( $sshkey_overwrite_stored_keys )
-  }
 
   # Set the appropriate default port based on whether SSL is enabled
   if( $port != undef ) {
