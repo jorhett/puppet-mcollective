@@ -222,6 +222,13 @@ define mcollective::userconfig(
     unless  => "/usr/bin/test -e ${public_key}",
     require => Exec["create-private-${user}"],
   }
+  file {$public_key:
+    ensure  =>  file,
+    owner   =>  $user,
+    group   =>  $group,
+    mode    =>  '0500',
+    subscribe =>  Exec["create-public-${user}"],
+  }
 
   # Stubs for SSL trusted, must be created by user
   $ssl_private = "${homepath}/.puppet/ssl/private_keys/${user}.pem"
