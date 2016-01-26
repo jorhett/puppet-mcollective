@@ -107,12 +107,24 @@
 #   The path to your trusted server certificate. (Only used with trusted connector_ssl_type)
 #   Default: Re-use your puppet CA infrastructure, captured to your home directory at .puppet/ssl/certs/
 #
+# [*trusted_ssl_server_cert_content*]
+#   The content of your trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure, captured to your home directory at .puppet/ssl/certs/
+#
 # [*trusted_ssl_server_key*]
 #   The path to your private key used with the trusted server certificate. (Only used with trusted connector_ssl_type)
 #   Default: Re-use your puppet CA infrastructure, captured to your home directory at .puppet/ssl/private_keys/
 #
+# [*trusted_ssl_server_key_content*]
+#   The content of your private key used with the trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure, captured to your home directory at .puppet/ssl/private_keys/
+#
 # [*trusted_ssl_ca_cert*]
 #   The path to your trusted certificate authority certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure, captured to your home directory at .puppet/ssl/certs/
+#
+# [*trusted_ssl_ca_cert_content*]
+#   The content of your trusted certificate authority certificate. (Only used with trusted connector_ssl_type)
 #   Default: Re-use your puppet CA infrastructure, captured to your home directory at .puppet/ssl/certs/
 #
 # === Examples
@@ -134,12 +146,15 @@ define mcollective::userconfig(
   $filename     = '.mcollective',
 
   # This value can be overridden in Hiera or through class parameters
-  $etcdir                       = $mcollective::etcdir,
-  $hosts                        = $mcollective::hosts,
-  $collectives                  = $mcollective::collectives,
-  $trusted_ssl_server_cert      = undef,
-  $trusted_ssl_server_key       = undef,
-  $trusted_ssl_ca_cert          = undef,
+  $etcdir                           = $mcollective::etcdir,
+  $hosts                            = $mcollective::hosts,
+  $collectives                      = $mcollective::collectives,
+  $trusted_ssl_server_cert          = undef,
+  $trusted_ssl_server_cert_content  = undef,
+  $trusted_ssl_server_key           = undef,
+  $trusted_ssl_server_key_content   = undef,
+  $trusted_ssl_ca_cert              = undef,
+  $trusted_ssl_ca_cert_content      = undef,
 
   # Logging
   $logger_type  = $mcollective::client::logger_type,
@@ -183,21 +198,21 @@ define mcollective::userconfig(
       owner   =>  $user,
       group   =>  $group,
       mode    =>  '0500',
-      source  =>  pick($trusted_ssl_server_cert,$mcollective::trusted_ssl_server_cert),
+      content  =>  pick($trusted_ssl_server_cert_content,file($trusted_ssl_server_cert),file($mcollective::trusted_ssl_server_cert)),
     }
     file {$trusted_ssl_server_key_real:
       ensure  =>  file,
       owner   =>  $user,
       group   =>  $group,
       mode    =>  '0500',
-      source  =>  pick($trusted_ssl_server_key,$mcollective::trusted_ssl_server_key),
+      content  =>  pick($trusted_ssl_server_key_content,file($trusted_ssl_server_key),file($mcollective::trusted_ssl_server_key)),
     }
     file {$trusted_ssl_ca_cert_real:
       ensure  =>  file,
       owner   =>  $user,
       group   =>  $group,
       mode    =>  '0500',
-      source  =>  pick($trusted_ssl_ca_cert,$mcollective::trusted_ssl_ca_cert),
+      content  =>  pick($trusted_ssl_ca_cert_content,file($trusted_ssl_ca_cert),file($mcollective::trusted_ssl_ca_cert)),
     }
   }
   
