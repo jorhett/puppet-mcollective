@@ -30,8 +30,9 @@ inherits mcollective {
   $yamlfile = "${mcollective::etcdir}/facts.yaml"
 
   cron { 'mcollective-facts':
-    ensure  => $enable,
-    command => "facter --puppet --yaml > ${yamlfile}.new && ! diff -q ${yamlfile}.new ${yamlfile} > /dev/null && mv ${yamlfile}.new ${yamlfile}",
-    minute  => $minute,
+    ensure      => $enable,
+    command     => "facter --puppet --yaml > ${yamlfile}.new && ! diff -q ${yamlfile}.new ${yamlfile} > /dev/null && mv ${yamlfile}.new ${yamlfile}",
+    minute      => $minute,
+    environment => 'PATH=/bin:/usr/bin:/usr/sbin:/opt/puppetlabs/bin',
   }
 }
