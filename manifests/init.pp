@@ -71,6 +71,18 @@
 #    Default: Do not overwrite  (only matters if security_provider is sshkey)
 #    Values: true, false (default)
 #
+# [*trusted_ssl_server_cert*]
+#   The path to your trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_server_key*]
+#   The path to your private key used with the trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_ca_cert*]
+#   The path to your trusted certificate authority certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
 # === Examples
 #
 # node default {
@@ -115,6 +127,9 @@ class mcollective(
   $sshkey_publickey_dir         = undef,
   $sshkey_learn_public_keys     = false,
   $sshkey_overwrite_stored_keys = false,
+  $trusted_ssl_server_cert      = "${::ssldir}/certs/${::clientcert}.pem",
+  $trusted_ssl_server_key       = "${::ssldir}/private_keys/${::clientcert}.pem",
+  $trusted_ssl_ca_cert          = "${::ssldir}/certs/ca.pem",
   
 )
   inherits mcollective::params {

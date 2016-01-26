@@ -151,6 +151,18 @@
 #    Default: Do not overwrite  (only matters if security_provider is sshkey)
 #    Values: true, false (default)
 #
+# [*trusted_ssl_server_cert*]
+#   The path to your trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_server_key*]
+#   The path to your private key used with the trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_ca_cert*]
+#   The path to your trusted certificate authority certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
 # === Examples
 #
 #  class { 'mcollective::server':
@@ -174,6 +186,9 @@ class mcollective::server(
   $enable                       = true,
   $hosts                        = $mcollective::hosts,
   $collectives                  = $mcollective::collectives,
+  $trusted_ssl_server_cert      = $mcollective::trusted_ssl_server_cert,
+  $trusted_ssl_server_key       = $mcollective::trusted_ssl_server_key,
+  $trusted_ssl_ca_cert          = $mcollective::trusted_ssl_ca_cert,
 
   # Authorization
   $allow_managed_resources      = true,

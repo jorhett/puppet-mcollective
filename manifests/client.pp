@@ -130,6 +130,18 @@
 #    Default: Do not overwrite  (only matters if security_provider is sshkey)
 #    Values: true, false (default)
 #
+# [*trusted_ssl_server_cert*]
+#   The path to your trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_server_key*]
+#   The path to your private key used with the trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_ca_cert*]
+#   The path to your trusted certificate authority certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
 # === Examples
 #
 #  class { 'mcollective::client':
@@ -145,11 +157,14 @@
 #
 class mcollective::client(
   # This value can be overridden in Hiera or through class parameters
-  $unix_group   = 'wheel',
-  $etcdir       = $mcollective::etcdir,
-  $hosts        = $mcollective::hosts,
-  $collectives  = $mcollective::collectives,
-  $package      = $mcollective::params::client_package_name,
+  $unix_group                   = 'wheel',
+  $etcdir                       = $mcollective::etcdir,
+  $hosts                        = $mcollective::hosts,
+  $collectives                  = $mcollective::collectives,
+  $package                      = $mcollective::params::client_package_name,
+  $trusted_ssl_server_cert      = $mcollective::trusted_ssl_server_cert,
+  $trusted_ssl_server_key       = $mcollective::trusted_ssl_server_key,
+  $trusted_ssl_ca_cert          = $mcollective::trusted_ssl_ca_cert,
 
   # Package update?
   $version            = 'latest',

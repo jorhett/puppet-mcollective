@@ -103,6 +103,18 @@
 #    Send the specified public key along with the request for dynamic key management
 #    Default: undefined  (only matters if security_provider is sshkey)
 #
+# [*trusted_ssl_server_cert*]
+#   The path to your trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_server_key*]
+#   The path to your private key used with the trusted server certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
+# [*trusted_ssl_ca_cert*]
+#   The path to your trusted certificate authority certificate. (Only used with trusted connector_ssl_type)
+#   Default: Re-use your puppet CA infrastructure
+#
 # === Examples
 #
 #  mcollective::userconfig { 'jorhett':
@@ -122,9 +134,12 @@ define mcollective::userconfig(
   $filename     = '.mcollective',
 
   # This value can be overridden in Hiera or through class parameters
-  $etcdir       = $mcollective::etcdir,
-  $hosts        = $mcollective::hosts,
-  $collectives  = $mcollective::collectives,
+  $etcdir                       = $mcollective::etcdir,
+  $hosts                        = $mcollective::hosts,
+  $collectives                  = $mcollective::collectives,
+  $trusted_ssl_server_cert      = $mcollective::trusted_ssl_server_cert,
+  $trusted_ssl_server_key       = $mcollective::trusted_ssl_server_key,
+  $trusted_ssl_ca_cert          = $mcollective::trusted_ssl_ca_cert,
 
   # Logging
   $logger_type  = $mcollective::client::logger_type,
@@ -229,11 +244,6 @@ define mcollective::userconfig(
     mode    =>  '0500',
     subscribe =>  Exec["create-public-${user}"],
   }
-
-  # Stubs for SSL trusted, must be created by user
-  $ssl_private = "${homepath}/.puppet/ssl/private_keys/${user}.pem"
-  $ssl_cert    = "${homepath}/.puppet/ssl/certs/${user}.pem"
-  $ca_cert     = "${homepath}/.puppet/ssl/certs/ca.pem"
 
   file { "${homepath}/${filename}":
     ensure  => file,
