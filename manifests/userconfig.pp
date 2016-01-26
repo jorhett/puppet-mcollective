@@ -105,15 +105,15 @@
 #
 # [*trusted_ssl_server_cert*]
 #   The path to your trusted server certificate. (Only used with trusted connector_ssl_type)
-#   Default: Re-use your puppet CA infrastructure
+#   Default: Re-use your puppet CA infrastructure, captured to your home directory at .puppet/ssl/certs/
 #
 # [*trusted_ssl_server_key*]
 #   The path to your private key used with the trusted server certificate. (Only used with trusted connector_ssl_type)
-#   Default: Re-use your puppet CA infrastructure
+#   Default: Re-use your puppet CA infrastructure, captured to your home directory at .puppet/ssl/private_keys/
 #
 # [*trusted_ssl_ca_cert*]
 #   The path to your trusted certificate authority certificate. (Only used with trusted connector_ssl_type)
-#   Default: Re-use your puppet CA infrastructure
+#   Default: Re-use your puppet CA infrastructure, captured to your home directory at .puppet/ssl/certs/
 #
 # === Examples
 #
@@ -137,9 +137,9 @@ define mcollective::userconfig(
   $etcdir                       = $mcollective::etcdir,
   $hosts                        = $mcollective::hosts,
   $collectives                  = $mcollective::collectives,
-  $trusted_ssl_server_cert      = $mcollective::trusted_ssl_server_cert,
-  $trusted_ssl_server_key       = $mcollective::trusted_ssl_server_key,
-  $trusted_ssl_ca_cert          = $mcollective::trusted_ssl_ca_cert,
+  $trusted_ssl_server_cert      = undef,
+  $trusted_ssl_server_key       = undef,
+  $trusted_ssl_ca_cert          = undef,
 
   # Logging
   $logger_type  = $mcollective::client::logger_type,
@@ -165,6 +165,41 @@ define mcollective::userconfig(
   }
   else {
     $homepath = $homedir
+  }
+  
+  $trusted_ssl_server_cert_real = "${homepath}/.puppet/ssl/certs/${user}.pem",
+  $trusted_ssl_server_key_real  = "${homepath}/.puppet/ssl/private_keys/${user}.pem",
+  $trusted_ssl_ca_cert_real     = "${homepath}/.puppet/ssl/certs/${user}.pem",
+  
+  # Capture the information needed for trusted SSL connections to the local user directory to prevent permission issues
+  if( $mcollective::connector_type_ssl == 'trusted') {
+    file {["${homepath}/.puppet","${homepath}/.puppet/ssl","${homepath}/.puppet/ssl/certs","${homepath}/.puppet/ssl/private_keys"]:
+      ensure => 'directory',
+      owner  => $user,
+      group  => $group,
+    }
+    file {$trusted_ssl_server_cert_real:
+      ensure  =>  file,
+      owner   =>  $user,
+      group   =>  $group,
+      mode    =>  '0500',
+      # If a specific URL was provided, use it.  Otherwise pull in the system puppet ssl info.
+      source  =>  pick($trusted_ssl_server_cert,$mcollective::trusted_ssl_server_cert),
+    }
+    file {$trusted_ssl_server_key_real:
+      ensure  =>  file,
+      owner   =>  $user,
+      group   =>  $group,
+      mode    =>  '0500',
+      source  =>  pick($trusted_ssl_server_key,$mcollective::trusted_ssl_server_key),
+    }
+    file {$trusted_ssl_ca_cert_real:
+      ensure  =>  file,
+      owner   =>  $user,
+      group   =>  $group,
+      mode    =>  '0500',
+      source  =>  pick($trusted_ssl_ca_cert,$mcollective::trusted_ssl_ca_cert),
+    }
   }
   
   # Create the parent default directory if needed
