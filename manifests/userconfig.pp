@@ -184,7 +184,7 @@ define mcollective::userconfig(
   
   $trusted_ssl_server_cert_real = "${homepath}/.puppet/ssl/certs/${user}.pem"
   $trusted_ssl_server_key_real  = "${homepath}/.puppet/ssl/private_keys/${user}.pem"
-  $trusted_ssl_ca_cert_real     = "${homepath}/.puppet/ssl/certs/${user}.pem"
+  $trusted_ssl_ca_cert_real     = "${homepath}/.puppet/ssl/certs/ca.pem"
   
   # Capture the information needed for trusted SSL connections to the local user directory to prevent permission issues
   if( $mcollective::connector_type_ssl == 'trusted') {
