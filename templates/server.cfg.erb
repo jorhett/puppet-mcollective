@@ -3,6 +3,8 @@ libdir = <%= scope.lookupvar('mcollective::libdir') %>
 <% if( scope.lookupvar('::clientversion').to_f >= 4.0 ) then -%>
 libdir = /opt/puppetlabs/mcollective/plugins
 classesfile = /opt/puppetlabs/puppet/cache/state/classes.txt
+<% else %>
+classesfile = /var/lib/puppet/classes.txt
 <% end -%>
 daemonize = 1
 direct_addressing = 1
