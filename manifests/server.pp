@@ -318,13 +318,6 @@ class mcollective::server(
 
   # Only install logrotate if the logrotate directory is installed
   if( $logrotate_directory ) {
-    file { 'logrotate-directory':
-      ensure => directory,
-      path   => $logrotate_directory,
-      owner  => 0,
-      group  => 0,
-      mode   => '0755',
-    }
     file { 'logrotate-auditlog':
       ensure  => $auditlog_ensure,
       path    => "${logrotate_directory}/mcollective-auditlog",
