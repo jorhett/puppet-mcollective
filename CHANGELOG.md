@@ -1,3 +1,7 @@
+## 2015-11-26 - Release 1.0.3
+### Bugfix 
+- Ensure that facts cronjob is moved into place without confirmation prompt 
+
 ##2015-11-26 - Release 1.0.2
 ###Bugfix release
 

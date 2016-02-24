@@ -31,7 +31,7 @@ inherits mcollective {
 
   cron { 'mcollective-facts':
     ensure  => $enable,
-    command => "facter --puppet --yaml > ${yamlfile}.new && ! diff -q ${yamlfile}.new ${yamlfile} > /dev/null && mv ${yamlfile}.new ${yamlfile}",
+    command => "facter --puppet --yaml > ${yamlfile}.new && ! diff -q ${yamlfile}.new ${yamlfile} > /dev/null && mv -f ${yamlfile}.new ${yamlfile}",
     minute  => $minute,
   }
 }

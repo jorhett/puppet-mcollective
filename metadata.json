@@ -1,6 +1,6 @@
 {
   "name": "jorhett-mcollective",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Jo Rhett",
   "license": "BSD-3-Clause",
   "summary": "Configures MCollective servers, clients, and middleware brokers; handles networks of brokers, subcollectives, and TLS security options",
