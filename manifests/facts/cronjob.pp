@@ -25,7 +25,7 @@ inherits mcollective {
     'absent'  => '*',
     'present' => "*/${run_every}",
   }
-  
+
   # shorten for ease of use
   $yamlfile = "${mcollective::etcdir}/facts.yaml"
 
