@@ -17,6 +17,12 @@ connector = <%= scope.lookupvar('mcollective::connector') %>
 plugin.rabbitmq.vhost = /mcollective
 <% elsif( scope.lookupvar('mcollective::connector') == 'activemq' ) then -%>
 plugin.activemq.heartbeat_interval = 30
+<% if( scope.lookupvar('mcollective::activemq_base64') ) then -%>
+plugin.activemq.base64 = yes
+<% end -%>
+<% if( scope.lookupvar('mcollective::activemq_base64') == false) then -%>
+plugin.activemq.base64 = no
+<% end -%>
 <% end -%>
 plugin.<%= scope.lookupvar('mcollective::connector') -%>.pool.size = <%= @hosts.length %>
 <% @hosts.each_with_index do |mqhost, index| -%>

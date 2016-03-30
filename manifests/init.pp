@@ -98,6 +98,7 @@ class mcollective(
   $security_provider    = 'psk',
   $psk_key              = undef,   # will be checked if provider = psk
   $psk_callertype       = 'uid',
+  $activemq_base64      = undef, # Can be set to true to set 'plugin.activemq.base64 = yes' in server.cfg/client.cfg configuration files.
 )
   inherits mcollective::params {
 
@@ -112,6 +113,9 @@ class mcollective(
   validate_re( $connector, [ '^activemq$', '^rabbitmq$' ] )
   validate_re( $security_provider, [ '^psk$', '^sshkey$', '^ssl', '^aes_security' ] )
   validate_bool( $connector_ssl )
+  if ( $activemq_base64 != undef ) {
+    validate_bool( $activemq_base64 )
+  }
 
   if( $security_provider == 'psk' ) {
     validate_re( $psk_key, '^\S{20}', 'Please use a longer string of non-whitespace characters for the pre-shared key' )

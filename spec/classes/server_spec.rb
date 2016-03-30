@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe 'mcollective::server' do
-  let(:pre_condition) { 
+  let(:pre_condition) {
     'class { "mcollective":
-      hosts           => ["middleware.example.net"],                                                                                                                                                         
+      hosts           => ["middleware.example.net"],
       client_password => "fakeTestingClientPassword",
       server_password => "fakeTestingServerPassword",
       psk_key         => "fakeTestingPreSharedKey",
@@ -114,6 +114,44 @@ describe 'mcollective::server' do
 
     it do
       should contain_package('rubygem-stomp').with({ 'name' => 'rubygem-stomp' })
+    end
+  end
+  describe 'templated server.cfg' do
+    context 'With default activemq_base64 parameter (undef)' do
+      it 'should NOT contain plugin.activemq.base64 configuration' do
+        content = catalogue.resource('file', '/etc/puppetlabs/mcollective/server.cfg').send(:parameters)[:content]
+        expect(content).not_to include('plugin.activemq.base64')
+      end
+    end
+    context 'With activemq_base64 parameter set to true' do
+      let(:pre_condition) {
+        'class { "mcollective":
+          hosts           => ["middleware.example.net"],
+          client_password => "fakeTestingClientPassword",
+          server_password => "fakeTestingServerPassword",
+          psk_key         => "fakeTestingPreSharedKey",
+          activemq_base64 => true,
+        }'
+      }
+      it 'should contain plugin.activemq.base64 = yes' do
+        content = catalogue.resource('file', '/etc/puppetlabs/mcollective/server.cfg').send(:parameters)[:content]
+        expect(content).to match(/^plugin\.activemq\.base64 = yes$/)
+      end
+    end
+    context 'With activemq_base64 parameter set to false' do
+      let(:pre_condition) {
+        'class { "mcollective":
+          hosts           => ["middleware.example.net"],
+          client_password => "fakeTestingClientPassword",
+          server_password => "fakeTestingServerPassword",
+          psk_key         => "fakeTestingPreSharedKey",
+          activemq_base64 => false,
+        }'
+      }
+      it 'should contain plugin.activemq.base64 = no' do
+        content = catalogue.resource('file', '/etc/puppetlabs/mcollective/server.cfg').send(:parameters)[:content]
+        expect(content).to match(/^plugin\.activemq\.base64 = no$/)
+      end
     end
   end
 end
