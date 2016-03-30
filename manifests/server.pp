@@ -169,6 +169,8 @@ class mcollective::server(
   $logfacility                  = 'user',
   $keeplogs                     = '5',
   $max_log_size                 = '2097152',
+
+  $site_module                  = $mcollective::site_module,
 )
   inherits mcollective {
 
@@ -201,6 +203,11 @@ class mcollective::server(
     notify  => Service[ $service ],
   }
 
+  $_site_module = $site_module ? {
+    undef => '',
+    default => "${site_module}/",
+  }
+
   # Management of SSL keys
   if( ( $mcollective::security_provider == 'aes_security' ) or ( $mcollective::security_provider == 'ssl' ) ) {
     Package[$package] -> File["${etcdir}/ssl"]
@@ -215,7 +222,7 @@ class mcollective::server(
       purge   => true,
       force   => true,
       recurse => true,
-      source  => 'puppet:///modules/mcollective/ssl/clients',
+      source  => "puppet:///modules/${_site_module}mcollective/ssl/clients",
       require => Package[ $package ],
       before  => Service[ $service ],
     }
@@ -233,7 +240,7 @@ class mcollective::server(
         mode    => '0400',
         links   => follow,
         replace => true,
-        source  => 'puppet:///modules/mcollective/ssl/server/private.pem',
+        source  => "puppet:///modules/${_site_module}mcollective/ssl/server/private.pem",
         require => [ Package[ $package ], File["${etcdir}/ssl/server/public.pem"] ],
         before  => Service[ $service ],
       }
@@ -253,7 +260,7 @@ class mcollective::server(
       replace => true,
       force   => true,
       purge   => false,
-      source  => 'puppet:///modules/mcollective/policies',
+      source  => "puppet:///modules/${_site_module}mcollective/policies",
       require => Package[ $package ],
       before  => Service[ $service ],
     }
@@ -272,7 +279,7 @@ class mcollective::server(
       owner   => 0,
       group   => 0,
       mode    => '0444',
-      source  => 'puppet:///modules/mcollective/actionpolicy-auth/util/actionpolicy.rb',
+      source  => "puppet:///modules/${_site_module}mcollective/actionpolicy-auth/util/actionpolicy.rb",
       require => File["${etcdir}/server.cfg"],
       before  => Service[ $service ],
     }
@@ -282,7 +289,7 @@ class mcollective::server(
       owner   => 0,
       group   => 0,
       mode    => '0444',
-      source  => 'puppet:///modules/mcollective/actionpolicy-auth/util/actionpolicy.ddl',
+      source  => "puppet:///modules/${_site_module}mcollective/actionpolicy-auth/util/actionpolicy.ddl",
       require => File["${etcdir}/server.cfg"],
       before  => Service[ $service ],
     }
