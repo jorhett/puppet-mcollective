@@ -179,8 +179,8 @@ class mcollective::server(
   validate_bool( $enable )
 
   # Validate that server username and password were supplied
-  validate_re( $server_user, '^.{5}', 'Please provide a server username' )
-  validate_re( $server_password, '^.{12}', 'Please provide at last twelve characters in server password' )
+  validate_re( $mcollective::server_user, '^.{5}', 'Please provide a server username' )
+  validate_re( $mcollective::server_password, '^.{12}', 'Please provide at last twelve characters in server password' )
 
   # Ensure the facts cronjob is set up or removed
   include mcollective::facts::cronjob

@@ -171,10 +171,10 @@ class mcollective::middleware(
   validate_bool( $use_jmx )
 
   # Validate that client and server username and password were supplied
-  validate_re( $client_user, '^.{5}', 'Please provide a client username' )
-  validate_re( $client_password, '^.{12}', 'Please provide at last twelve characters in client password' )
-  validate_re( $server_user, '^.{5}', 'Please provide a server username' )
-  validate_re( $server_password, '^.{12}', 'Please provide at last twelve characters in server password' )
+  validate_re( $mcollective::client_user, '^.{5}', 'Please provide a client username' )
+  validate_re( $mcollective::client_password, '^.{12}', 'Please provide at last twelve characters in client password' )
+  validate_re( $mcollective::server_user, '^.{5}', 'Please provide a server username' )
+  validate_re( $mcollective::server_password, '^.{12}', 'Please provide at last twelve characters in server password' )
 
 
   # Main menu
