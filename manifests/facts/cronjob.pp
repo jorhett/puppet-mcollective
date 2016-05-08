@@ -6,9 +6,11 @@
 #
 # Hiera: 
 #   mcollective::facts::cronjob::run_every: 15   # every quarter hour 
+#   mcollective::facts::cronjob::facter: /opt/puppetlabs/bin/facter # AIO facter
 #
 class mcollective::facts::cronjob(
   $run_every = 'unknown',
+  $facter    = 'facter',
 )
 inherits mcollective {
 
@@ -31,7 +33,7 @@ inherits mcollective {
 
   cron { 'mcollective-facts':
     ensure  => $enable,
-    command => "facter --puppet --yaml > ${yamlfile}.new && ! diff -q ${yamlfile}.new ${yamlfile} > /dev/null && mv ${yamlfile}.new ${yamlfile}",
+    command => "${facter} --puppet --yaml > ${yamlfile}.new && ! diff -q ${yamlfile}.new ${yamlfile} > /dev/null && mv ${yamlfile}.new ${yamlfile}",
     minute  => $minute,
   }
 }
