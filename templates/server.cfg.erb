@@ -67,6 +67,7 @@ factsource = yaml
 plugin.yaml = <%= scope.lookupvar('mcollective::etcdir') %>/facts.yaml
 
 # Puppet resource control
+plugin.puppet.command = <%= @puppet_agent_command %>
 plugin.puppet.resource_allow_managed_resources = <%= @allow_managed_resources %>
 <% if( @resource_type_whitelist ) then -%>
 plugin.puppet.resource_type_whitelist = <%= @resource_type_whitelist %>

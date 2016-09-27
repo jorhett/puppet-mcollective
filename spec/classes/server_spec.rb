@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe 'mcollective::server' do
-  let(:pre_condition) { 
+  let(:pre_condition) {
     'class { "mcollective":
-      hosts           => ["middleware.example.net"],                                                                                                                                                         
+      hosts           => ["middleware.example.net"],
       client_password => "fakeTestingClientPassword",
       server_password => "fakeTestingServerPassword",
       psk_key         => "fakeTestingPreSharedKey",
@@ -114,6 +114,42 @@ describe 'mcollective::server' do
 
     it do
       should contain_package('rubygem-stomp').with({ 'name' => 'rubygem-stomp' })
+    end
+  end
+  describe 'puppet_agent_command parameter' do
+    let :params do
+      {
+        :etcdir => '/etc/mcollective'
+      }
+    end
+    context 'by default' do
+      context 'when an AIO package isn\'t installed' do
+        it do
+          content = catalogue.resource('file', '/etc/mcollective/server.cfg').send(:parameters)[:content]
+          expect(content).to match(/^plugin\.puppet\.command = puppet agent$/)
+        end
+      end
+      context 'when an AIO package is installed.' do
+        let :facts do
+          { :aio_agent_version => '1.5.2' }
+        end
+        it do
+          content = catalogue.resource('file', '/etc/mcollective/server.cfg').send(:parameters)[:content]
+          expect(content).to match(%r{^plugin\.puppet\.command = /opt/puppetlabs/bin/puppet agent$})
+        end
+      end
+    end
+    context 'when overridden' do
+      let :params do
+        {
+          :etcdir => '/etc/mcollective',
+          :puppet_agent_command => '/path/to/puppet agent'
+        }
+      end
+      it do
+        content = catalogue.resource('file', '/etc/mcollective/server.cfg').send(:parameters)[:content]
+        expect(content).to match(%r{^plugin\.puppet\.command = /path/to/puppet agent$})
+      end
     end
   end
 end

@@ -52,6 +52,10 @@
 #   If whitelist is empty, which resources should be blocked?
 #   Default: null
 #
+# [*puppet_agent_command*]
+#   Configures the mcollective-puppet-agent 'plugin.puppet.command' parameter.
+#   Default: 'puppet agent' or '/opt/puppetlabs/bin/puppet agent' if an AIO puppet agent package is installed.
+#
 # [*audit_logfile*]
 #   If this logfile is specified then auditing is enabled.
 #
@@ -153,13 +157,16 @@ class mcollective::server(
   $collectives                  = $mcollective::collectives,
 
   # Authorization
-  $allow_managed_resources      = true,
-  $resource_type_whitelist      = 'none',
-  $resource_type_blacklist      = undef,
   $audit_logfile                = undef,
   $authorization_enable         = undef,
   $authorization_default_policy = undef,
   $ssh_authorized_keys          = undef,
+
+  # mcollective-puppet-agent settings
+  $allow_managed_resources      = true,
+  $resource_type_whitelist      = 'none',
+  $resource_type_blacklist      = undef,
+  $puppet_agent_command         = $mcollective::params::puppet_agent_command,
 
   # Logging
   $logrotate_directory          = $mcollective::params::logrotate_directory,
@@ -177,6 +184,7 @@ class mcollective::server(
   validate_re( $version, '^present$|^latest$|^[._0-9a-zA-Z:-]+$' )
   validate_re( $ensure, '^running$|^stopped$' )
   validate_bool( $enable )
+  validate_string( $puppet_agent_command )
 
   # Validate that server username and password were supplied
   validate_re( $server_user, '^.{5}', 'Please provide a server username' )

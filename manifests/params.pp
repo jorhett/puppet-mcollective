@@ -84,4 +84,11 @@ class mcollective::params {
     /(?i-mx:freebsd)/ => undef,
     default           => undef,
   }
+
+  # mcollective-puppet-agent settings
+  if getvar('::aio_agent_version') {
+    $puppet_agent_command = '/opt/puppetlabs/bin/puppet agent'
+  } else {
+    $puppet_agent_command = 'puppet agent'
+  }
 }
