@@ -170,7 +170,7 @@ class mcollective::server(
   $keeplogs                     = '5',
   $max_log_size                 = '2097152',
 )
-  inherits mcollective {
+inherits mcollective {
 
   validate_array( $hosts )
   validate_array( $collectives )
@@ -210,7 +210,7 @@ class mcollective::server(
       ensure  => directory,
       owner   => 0,
       group   => 0,
-      mode    => '0755',
+      mode    => '0644',
       links   => follow,
       purge   => true,
       force   => true,
