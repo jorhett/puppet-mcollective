@@ -209,7 +209,7 @@ class mcollective::middleware(
     notify  => Service[ $service ],
   }
 
-  if( ( $mcollective::connector == 'activemq' ) and ( $defaults_file != '' ) ) {
+  if( ( $mcollective::connector == 'activemq' ) and ( $defaults_file != '' and $defaults_file != undef ) ) {
     file { '/etc/sysconfig/activemq':
       ensure  => file,
       owner   => $user,

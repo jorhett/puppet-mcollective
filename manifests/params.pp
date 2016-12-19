@@ -5,7 +5,10 @@
 class mcollective::params {
   # Default locations for certain os combinations
   $etcdir = $::clientversion ? {
-    /(?:4\.)/  => '/etc/puppetlabs/mcollective',
+    /(?:4\.)/  => $::osfamily ? {
+      /(?i-mx:freebsd)/ => '/usr/local/etc/mcollective',
+      default           => '/etc/puppetlabs/mcollective',
+    },
     default    => $::osfamily ? {
       /(?i-mx:redhat)/  => '/etc/mcollective',
       /(?i-mx:debian)/  => '/etc/mcollective',
@@ -45,7 +48,7 @@ class mcollective::params {
   $client_package_name = $::osfamily ? {
     /(?i-mx:redhat)/  => 'mcollective-client',
     /(?i-mx:debian)/  => 'mcollective-client',
-    /(?i-mx:freebsd)/ => 'sysutils/mcollective-client',
+    /(?i-mx:freebsd)/ => 'sysutils/mcollective',
     default           => 'mcollective-client',
   }
 
