@@ -186,10 +186,7 @@ class mcollective::server(
   include mcollective::facts::cronjob
 
   # Now install the packages
-  package { $package:
-    ensure => $version,
-    notify => Service[ $service ],
-  }
+  ensure_packages([$package], {'ensure' => $version})
 
   file { "${etcdir}/server.cfg":
     ensure  => file,
@@ -296,9 +293,9 @@ class mcollective::server(
 
   # Now start the daemon
   service { $service:
-    ensure  => $ensure,
-    enable  => $enable,
-    require => Package[ $package ],
+    ensure    => $ensure,
+    enable    => $enable,
+    subscribe => Package[ $package ],
   }
 
   # Load in all the appropriate mcollective agents
