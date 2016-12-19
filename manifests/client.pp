@@ -149,9 +149,7 @@ inherits mcollective {
   validate_re( $client_user, '^.{5}', 'Please provide a client username' )
   validate_re( $client_password, '^.{12}', 'Please provide at last twelve characters in client password' )
 
-  package { $package:
-    ensure  => $version,
-  }
+  ensure_packages([$package], {'ensure' => $version})
 
   file { "${etcdir}/client.cfg":
     ensure  => file,
