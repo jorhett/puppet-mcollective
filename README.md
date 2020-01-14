@@ -15,6 +15,11 @@ http://shop.oreilly.com/product/0636920032472.do
 ISBN: [978-1-4919-4567-4](http://shop.oreilly.com/product/0636920032472.do)  
 <br clear="all" />
 
+## Deprecated
+
+ This module is deprecated in favour of [choria](https://forge.puppet.com/choria/choria),
+ which greatly simplifies what used to be the more complex bespoke Mcollective installations this module could create.
+
 ## Description
 
 This module can configure MCollective middleware brokers,
